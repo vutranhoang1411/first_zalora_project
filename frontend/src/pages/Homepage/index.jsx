@@ -1,7 +1,7 @@
 import { Container, Typography } from '@mui/material'
 import React from 'react'
 
-const Homepage = () => {
+export const Homepage = () => {
   return (
     <Container>
       <Typography>
@@ -11,4 +11,4 @@ const Homepage = () => {
   )
 }
 
-export default Homepage
+// export default Homepage
