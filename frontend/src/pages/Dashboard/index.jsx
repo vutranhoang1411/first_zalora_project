@@ -1,6 +1,6 @@
 import React from 'react'
 // import Dashboard from '../../components/Dashboard'
-import Content from '../../components/Content'
+import Content from '../../components/Dashboard'
 
 export const DashboardPage = () => {
   return (

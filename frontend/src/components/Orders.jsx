@@ -1,51 +1,42 @@
 import * as React from 'react';
 import Link from '@mui/material/Link';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
 import Title from './Title';
+import { DataGrid } from '@mui/x-data-grid';
 
 // Generate Order Data
-function createData(id, date, name, shipTo, paymentMethod, amount) {
-  return { id, date, name, shipTo, paymentMethod, amount };
-}
+// GridColDef[]
+const columns = [
+  { field: 'name', headerName: 'Name', width: 200},
+  { field: 'brand', headerName: 'Brand', width: 100 },
+  { field: 'sku', headerName: 'SKU', width: 100 },
+  {
+    field: 'size',
+    headerName: 'Size',
+    type: 'number',
+    width: 90,
+  },
+  {
+    field: 'supplier',
+    headerName: 'Supplier',
+    description: 'This column has a value getter and is not sortable.',
+    sortable: false,
+    width: 160,
+    // valueGetter: (params) => // GridValueGetterParams
+    //   `${params.row.firstName || ''} ${params.row.lastName || ''}`,
+  },
+  { field: 'color', headerName: 'Color', width: 100, editable: true },
+  { field: 'status', headerName: 'Status', width: 70, editable: true },
+  { field: 'stock', headerName: 'Stock', type: 'number', width: 70 },
+
+];
 
 const rows = [
-  createData(
-    0,
-    '16 Mar, 2019',
-    'Elvis Presley',
-    'Tupelo, MS',
-    'VISA ⠀•••• 3719',
-    312.44,
-  ),
-  createData(
-    1,
-    '16 Mar, 2019',
-    'Paul McCartney',
-    'London, UK',
-    'VISA ⠀•••• 2574',
-    866.99,
-  ),
-  createData(2, '16 Mar, 2019', 'Tom Scholz', 'Boston, MA', 'MC ⠀•••• 1253', 100.81),
-  createData(
-    3,
-    '16 Mar, 2019',
-    'Michael Jackson',
-    'Gary, IN',
-    'AMEX ⠀•••• 2000',
-    654.39,
-  ),
-  createData(
-    4,
-    '15 Mar, 2019',
-    'Bruce Springsteen',
-    'Long Branch, NJ',
-    'VISA ⠀•••• 5919',
-    212.79,
-  ),
+  {id: 1, name: 'HM Winter Sweater', brand: 'HM', sku: 'HM0923SW', size: 'XXL', supplier: 'Zalora Warehouse', color: 'Green', status: 'Enable', stock: 1290},
+  {id: 2, name: 'HM Winter Sweater', brand: 'HM', sku: 'HM0923SW', size: 'XXL', supplier: 'Zalora Warehouse', color: 'Green', status: 'Enable', stock: 1290},
+  {id: 3, name: 'HM Winter Sweater', brand: 'HM', sku: 'HM0923SW', size: 'XXL', supplier: 'Zalora Warehouse', color: 'Green', status: 'Enable', stock: 1290},
+  {id: 4, name: 'HM Winter Sweater', brand: 'HM', sku: 'HM0923SW', size: 'XXL', supplier: 'Zalora Warehouse', color: 'Green', status: 'Enable', stock: 1290},
+  {id: 5, name: 'HM Winter Sweater', brand: 'HM', sku: 'HM0923SW', size: 'XXL', supplier: 'Zalora Warehouse', color: 'Green', status: 'Enable', stock: 1290},
+  {id: 6, name: 'HM Winter Sweater', brand: 'HM', sku: 'HM0923SW', size: 'XXL', supplier: 'Zalora Warehouse', color: 'Green', status: 'Enable', stock: 1290},
 ];
 
 function preventDefault(event) {
@@ -56,31 +47,18 @@ export default function Orders() {
   return (
     <React.Fragment>
       <Title>Recent Orders</Title>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>Date</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Ship To</TableCell>
-            <TableCell>Payment Method</TableCell>
-            <TableCell align="right">Sale Amount</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell>{row.date}</TableCell>
-              <TableCell>{row.name}</TableCell>
-              <TableCell>{row.shipTo}</TableCell>
-              <TableCell>{row.paymentMethod}</TableCell>
-              <TableCell align="right">{`$${row.amount}`}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <Link color="primary" href="#" onClick={preventDefault} sx={{ mt: 3 }}>
-        See more orders
-      </Link>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: { page: 0, pageSize: 5 },
+          },
+        }}
+        pageSizeOptions={[5, 10]}
+        checkboxSelection
+        onCellClick={(event) => {console.log(event)}} // field, formattedValue, isEditable
+      />
     </React.Fragment>
   );
 }
