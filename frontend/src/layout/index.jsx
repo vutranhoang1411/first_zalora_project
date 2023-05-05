@@ -14,7 +14,7 @@ import MenuIcon from '@mui/icons-material/Menu'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import { Outlet } from 'react-router'
-import ListItemsSideBar from 'components/ListItems'
+import ListItemsSideBar from 'components/sample/ListItems'
 
 const drawerWidth = 240
 

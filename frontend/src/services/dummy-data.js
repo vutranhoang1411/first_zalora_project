@@ -1,35 +1,4 @@
-import * as React from 'react'
-import Title from './Title'
-import { DataGrid } from '@mui/x-data-grid'
-import { Button } from '@mui/material'
-
-// Generate Order Data
-// GridColDef[]
-const columns = [
-  { field: 'name', headerName: 'Name', width: 200 },
-  { field: 'brand', headerName: 'Brand', width: 100 },
-  { field: 'sku', headerName: 'SKU', width: 100 },
-  {
-    field: 'size',
-    headerName: 'Size',
-    type: 'number',
-    width: 90,
-  },
-  {
-    field: 'supplier',
-    headerName: 'Supplier',
-    description: 'This column has a value getter and is not sortable.',
-    sortable: false,
-    width: 160,
-    // valueGetter: (params) => // GridValueGetterParams
-    //   `${params.row.firstName || ''} ${params.row.lastName || ''}`,
-  },
-  { field: 'color', headerName: 'Color', width: 100, editable: true },
-  { field: 'status', headerName: 'Status', width: 70, editable: true },
-  { field: 'stock', headerName: 'Stock', type: 'number', width: 70 },
-]
-
-const rows = [
+export const ProductRows = [
   {
     id: 1,
     name: 'HM Winter Sweater',
@@ -152,28 +121,3 @@ const rows = [
     stock: 1290,
   },
 ]
-
-export default function Orders() {
-  return (
-    <React.Fragment>
-      <div>
-        <Title>Recent Order</Title>
-        <Button></Button>
-      </div>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: { page: 0, pageSize: 10 },
-          },
-        }}
-        pageSizeOptions={[25, 50]}
-        checkboxSelection
-        onCellClick={(event) => {
-          console.log(event)
-        }} // field, formattedValue, isEditable
-      />
-    </React.Fragment>
-  )
-}
