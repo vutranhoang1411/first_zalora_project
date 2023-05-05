@@ -1,11 +1,8 @@
 import React from 'react'
-// import Dashboard from '../../components/Dashboard'
-import Content from '../../components/Dashboard'
+import CustomTable from 'components/table'
 
 export const DashboardPage = () => {
-  return (
-    <Content />
-  )
+  return <CustomTable />
 }
 
 // export default Dashboard

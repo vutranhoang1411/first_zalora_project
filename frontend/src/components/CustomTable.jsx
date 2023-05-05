@@ -2,13 +2,11 @@ import { Grid, Paper, Typography } from '@mui/material'
 import { Container } from '@mui/system'
 import React from 'react'
 import Chart from './Chart'
+import { Link } from 'react-router-dom'
 import Deposits from './Deposits'
 import Orders from './Orders'
-// import { Copyright } from '@mui/icons-material'
-import { Link } from 'react-router-dom'
 
-const Content = () => {
-
+const Hum = () => {
   function Copyright(props) {
     return (
       <Typography
@@ -26,7 +24,7 @@ const Content = () => {
       </Typography>
     )
   }
-  
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Grid container spacing={3}>
@@ -68,6 +66,4 @@ const Content = () => {
   )
 }
 
-
-
-export default Content
+export default Hum

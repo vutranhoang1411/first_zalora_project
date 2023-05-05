@@ -4,9 +4,7 @@ import React from 'react'
 export const Homepage = () => {
   return (
     <Container>
-      <Typography>
-        hello
-      </Typography>
+      <Typography>hello</Typography>
     </Container>
   )
 }

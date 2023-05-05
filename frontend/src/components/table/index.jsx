@@ -1,7 +1,8 @@
 import * as React from 'react'
-import Title from './Title'
 import { DataGrid } from '@mui/x-data-grid'
-import { Button } from '@mui/material'
+import { Button, Container, Paper } from '@mui/material'
+import Title from 'components/Title'
+import styles from './styles.scss'
 
 // Generate Order Data
 // GridColDef[]
@@ -153,27 +154,29 @@ const rows = [
   },
 ]
 
-export default function Orders() {
+export default function CustomTable() {
   return (
-    <React.Fragment>
-      <div>
-        <Title>Recent Order</Title>
-        <Button></Button>
-      </div>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: { page: 0, pageSize: 10 },
-          },
-        }}
-        pageSizeOptions={[25, 50]}
-        checkboxSelection
-        onCellClick={(event) => {
-          console.log(event)
-        }} // field, formattedValue, isEditable
-      />
-    </React.Fragment>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+        <div className={styles['title']}>
+          <Title>Recent Order</Title>
+          <Button> +</Button>
+        </div>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          initialState={{
+            pagination: {
+              paginationModel: { page: 0, pageSize: 10 },
+            },
+          }}
+          pageSizeOptions={[10, 50]}
+          checkboxSelection
+          onCellClick={(event) => {
+            console.log(event)
+          }} // field, formattedValue, isEditable
+        />
+      </Paper>
+    </Container>
   )
 }
