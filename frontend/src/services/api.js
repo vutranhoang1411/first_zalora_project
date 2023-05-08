@@ -1,5 +1,5 @@
 import axios from 'axios'
-const api = {
+export const api = {
   fetchUsers: async () => {
     const URL = 'https://jsonplaceholder.typicode.com/users'
     return await axios
@@ -8,4 +8,3 @@ const api = {
       .catch((err) => err)
   },
 }
-export default api
