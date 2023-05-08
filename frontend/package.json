@@ -24,6 +24,7 @@
     "recharts": "^2.5.0",
     "sass": "^1.62.1",
     "sass-loader": "^13.2.2",
+    "uuidv4": "^6.2.13",
     "web-vitals": "^2.1.4",
     "webpack": "^5.82.0"
   },
@@ -51,7 +52,6 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {},
   "main": "index.js",
   "license": "MIT"
 }

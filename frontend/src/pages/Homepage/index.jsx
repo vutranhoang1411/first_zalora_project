@@ -1,10 +1,11 @@
-import { Container, Typography } from '@mui/material'
+import { Container } from '@mui/material'
 import React from 'react'
+import Supplier from 'components/supplier'
 
 export const Homepage = () => {
   return (
     <Container>
-      <Typography>hello</Typography>
+      <Supplier />
     </Container>
   )
 }
