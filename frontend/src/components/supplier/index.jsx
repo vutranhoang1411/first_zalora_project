@@ -78,7 +78,6 @@ export default function Supplier() {
     }
 
     const { id, field, value } = params
-    console.log(params)
     const updatedRow = { ...params.row, [field]: value }
 
     try {

@@ -28,17 +28,4 @@ export const ProductAPI = {
     await axios.post(URL, body).then((res) => res.data)
   },
 }
-
-export const ProductSupplyAPI = {
-  getSuppliers: async (productId) => {
-    const URL = `${process.env.REACT_APP_BACKEND_URL}/productsupply/supplier?productId=${productId}`
-    return await axios.get(URL).then((res) => {
-      return res.data
-    })
-  },
-
-  deleteSupplierById: async (id) => {
-    const URL = `${process.env.REACT_APP_BACKEND_URL}/productsupply/${id}`
-    return await axios.delete(URL).then((res) => res.data)
-  },
-}
+export default api
