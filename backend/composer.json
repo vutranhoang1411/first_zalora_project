@@ -1,0 +1,19 @@
+{
+    "name": "hoangdeptrai/html",
+    "autoload": {
+        "psr-4": {
+        }
+    },
+    "authors": [
+        {
+            "name": "vu tran hoang",
+            "email": "hoang.vu141102@hcmut.edu.vn"
+        }
+    ],
+    "require-dev": {
+        "phalcon/ide-stubs": "^5.2"
+    },
+    "require": {
+        "josegonzalez/dotenv": "dev-master"
+    }
+}
