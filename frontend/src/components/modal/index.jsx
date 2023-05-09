@@ -38,10 +38,13 @@ export default function ModalInfo(props) {
         <Box className={styles.modal}>
           {/* sx={style} */}
           <Typography id="modal-modal-title" variant="h6" component="h2">
-            Text in a modal
+            The modal sample
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat
+            reprehenderit distinctio sequi incidunt repudiandae deleniti
+            asperiores vel fuga rem ipsam nemo libero earum, dolore id odit,
+            doloribus quidem! Quam, nemo!
           </Typography>
         </Box>
       </Modal>
