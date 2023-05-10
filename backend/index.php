@@ -5,6 +5,7 @@
     use Phalcon\Di\FactoryDefault;
     use Phalcon\Db\Adapter\Pdo\Mysql;
     use josegonzalez\Dotenv\Loader as ConfLoader;
+    use Phalcon\Mvc\Micro;
 
     //load needed module
     $loader=new PLoader();
@@ -39,6 +40,37 @@
             );
         }
     );
+    //router object;
+    $suppliers=new MicroCollection();
+    $suppliers
+        ->setHandler(MyApp\Controllers\SupplierController::class,true)
+        ->setPrefix("/supplier")
+        ->get("/","get")
+        ->post("/new","post")
+        ->post("/update","put")
+        ->post("/delete","delete");
+    // $addresses=new MicroCollection();
+    // $addresses
+    //     ->setHandler(MyApp\Controllers\AddressController::class,true)
+    //     ->setPrefix("/address")
+    //     ->post("/new","post")
+    //     ->post("/update","put")
+    //     ->post("/delete","delete");
+
+    $app=new Micro($DIcontainer);
+    $app->mount($suppliers);
+    // $app->mount($addresses);
+    $app->notFound(function(){
+        echo "Page not found";
+    });
+    try {
+        $app->handle($_SERVER["REQUEST_URI"]);
+    }catch (Exception $e){
+        $app->response->setJsonContent([
+            "code"=>$e->getCode(),
+            "message"=>$e->getMessage()
+        ]);
+    }
 
 
     
