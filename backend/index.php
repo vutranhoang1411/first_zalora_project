@@ -5,7 +5,6 @@
     use Phalcon\Di\FactoryDefault;
     use Phalcon\Db\Adapter\Pdo\Mysql;
     use josegonzalez\Dotenv\Loader as ConfLoader;
-    use MyApp\Controllers;
 
     //load needed module
     $loader=new PLoader();
@@ -19,7 +18,7 @@
 
     //Load DI container
     $DIcontainer = new FactoryDefault();
-    $Di->set(
+    $DIcontainer->set(
         'app_conf',
         function (){
             return (new ConfLoader('.env'))->parse()->toArray();
