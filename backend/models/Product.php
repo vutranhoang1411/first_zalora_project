@@ -3,6 +3,8 @@ namespace MyApp\Models;
 
 use Phalcon\Mvc\Model;
 use Phalcon\Filter\Validation;
+use Phalcon\Filter\Validation\Validator\InclusionIn;
+use Phalcon\Filter\Validation\Validator\GreaterThan;
 
 class Product extends Model
 {
@@ -34,12 +36,32 @@ class Product extends Model
         $this->hasMany(
             'id',
             Productsupply::class,
-            'productid'
+            'productid',
+            [
+                'alias'    => 'ProductSupply'
+            ]
         );
     }
 
+    public function getSupplier() {
+        return $this->getRelated('ProductSupply');
+    }
     public function validation()
     {
+        $validator = new Validation();
 
+        $validator->add(
+            "status",
+            new InclusionIn(
+                [
+                    'message' => 'Type must be "active", "inactive"',
+                    'domain'  => [
+                        'active',
+                        'inactive',
+                    ],
+                ]
+            )
+        );
+        return $this->validate($validator);
     }
 }

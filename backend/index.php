@@ -56,9 +56,20 @@
     //     ->post("/new","post")
     //     ->post("/update","put")
     //     ->post("/delete","delete");
+    $products = new MicroCollection();
+    $products
+        ->setHandler(ProductController::class,True)
+        ->setPrefix('/api/product')
+        ->get('/', 'index')
+        ->post("/","post")
+        ->delete("/{id:[0-9]+}",'delete')
+        ->put("/{id:[0-9]+}",'edit')
+    ;
+
 
     $app=new Micro($DIcontainer);
     $app->mount($suppliers);
+    $app->mount($products);
     // $app->mount($addresses);
     $app->notFound(function(){
         echo "Page not found";

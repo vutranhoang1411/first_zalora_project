@@ -11,6 +11,9 @@ class ProductSupply extends Model
     public $stock;
     public function initialize()
     {
+        $this->setSource(
+            'productsupply'
+        );
         $this->skipAttributes([
             'id',
         ]);
