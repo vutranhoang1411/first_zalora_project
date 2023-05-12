@@ -50,7 +50,7 @@ export default function CustomTable() {
           pageSizeOptions={[10, 50]}
           checkboxSelection
           onCellClick={(event) => {
-            console.log(event) // field, formattedValue, isEditable
+            // console.log(event) // field, formattedValue, isEditable
           }}
         />
       </Paper>

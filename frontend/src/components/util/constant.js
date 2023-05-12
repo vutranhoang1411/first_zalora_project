@@ -17,3 +17,17 @@ export const ProductStatus = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
 }
+
+export const SortType = {
+  ASC: 'asc',
+  DESC: 'desc',
+}
+
+export const ProductColor = {
+  GREEN: 'GREEN',
+  YELLOW: 'YELLOW',
+  BLACK: 'BLACK ',
+  WHITE: 'WHITE ',
+  RED: 'RED ',
+  OMBRE: 'OMBRE',
+}

@@ -171,7 +171,7 @@ export default function Orders() {
         pageSizeOptions={[25, 50]}
         checkboxSelection
         onCellClick={(event) => {
-          console.log(event)
+          // console.log(event)
         }} // field, formattedValue, isEditable
       />
     </React.Fragment>

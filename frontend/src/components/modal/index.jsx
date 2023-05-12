@@ -4,6 +4,7 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Modal from '@mui/material/Modal'
 import styles from './styles.module.scss'
+import { Divider } from '@mui/material'
 
 const style = {
   position: 'absolute',
@@ -23,7 +24,6 @@ export default function ModalInfo(props) {
   const handleOpen = () => setOpen(true)
   const handleClose = () => {
     setData('Close the modal')
-    console.log(info)
     setOpen(false)
   }
 
@@ -38,8 +38,9 @@ export default function ModalInfo(props) {
         <Box className={styles.modal}>
           {/* sx={style} */}
           <Typography id="modal-modal-title" variant="h6" component="h2">
-            The modal sample
+            Supplier Information
           </Typography>
+          <Divider />
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat
             reprehenderit distinctio sequi incidunt repudiandae deleniti

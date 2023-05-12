@@ -137,7 +137,7 @@ export default function Layout() {
           }}
         >
           <Toolbar />
-          <Outlet />
+          <Outlet styled={{ margin: 20 }} />
         </Box>
       </Box>
     </ThemeProvider>
