@@ -62,8 +62,8 @@
         ->setPrefix('/api/product')
         ->get('/', 'index')
         ->post("/","post")
-        ->delete("/{id:[0-9]+}",'delete')
-        ->put("/{id:[0-9]+}",'edit')
+        ->delete("/{id:[0-g9]+}",'delete')
+        ->post("/{id:[0-9]+}",'edit')
     ;
 
 

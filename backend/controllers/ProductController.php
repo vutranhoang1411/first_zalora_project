@@ -4,93 +4,84 @@ namespace MyApp\Controllers;
 use Phalcon\Http\Response;
 use Phalcon\Mvc\Controller;
 use MyApp\Models as Models;
+use Exception;
 
 /**
  * @property Response $response
  */
-class ProductController extends Controller
+class ProductController extends BaseController
 {
     public function index()
     {
-        $phql = "
-            SELECT 
-                p.*, 
-                ps.*,
-                s.name 
-            FROM 
-                 MyApp\Models\Product p            
-            JOIN MyApp\Models\Productsupply ps ON p.id = ps.productid
-            JOIN MyApp\Models\Supplier s ON s.id = ps.supplierid";
-        $query = $this->modelsManager->executeQuery($phql);
-        $output_array = [];
-        foreach ($query as $item) {
-            // Check if the ID already exists in the output array
-            $key = array_search($item->p->id, array_column($output_array, 'id'));
+        try {
+            $reqQuery = $this->request->getQuery();
 
-            if ($key === false) {
-                // ID does not exist, create a new object for it
-                $output_item = new \stdClass;
-                $output_item->id = $item->p->id;
-                $output_item->name = $item->p->name;
-                $output_item->brand = $item->p->brand;
-                $output_item->sku = $item->p->sku;
-                $output_item->size = $item->p->size;
-                $output_item->color = $item->p->color;
-                $output_item->status = $item->p->status;
-                $output_item->total_stock = $item->p->total_stock;
-                $output_item->supllier = [];
+            $conditions = [];
+            $bindParams = [];
 
-                $supplier_item = new \stdClass;
-                $supplier_item->supplier = $item->name;
-                $supplier_item->stock = $item->ps->stock;
-
-                $output_item->supllier[] = $supplier_item;
-
-                $output_array[] = $output_item;
-
-            } else {
-                // ID exists, add the age to the existing object
-                $supplier_item = new \stdClass;
-                $supplier_item->suppliername = $item->name;
-                $supplier_item->stock = $item->ps->stock;
-
-                $output_array[$key]->supllier[] = $supplier_item;
+            if (isset($reqQuery['color'])) {
+                $conditions[] = 'color = :color:';
+                $bindParams['color'] = $reqQuery['color'];
             }
-        }
-        return json_encode($output_array);
-    }
 
+            if (isset($reqQuery['size'])) {
+                $conditions[] = 'size = :size:';
+                $bindParams['size'] = $reqQuery['size'];
+            }
+
+            if (isset($reqQuery['brand'])) {
+                $conditions[] = 'brand = :brand:';
+                $bindParams['brand'] = $reqQuery['brand'];
+            }
+
+            if (isset($reqQuery['name'])) {
+                $conditions[] = 'name LIKE :name:';
+                $bindParams['name'] = '%'.$reqQuery['name'].'%';
+            }
+
+            $results = Models\Product::find([
+                'conditions' => implode(' AND ', $conditions),
+                'bind' => $bindParams,
+            ]);
+            $this->response->setStatusCode(200);
+            return $this->response->setJsonContent([
+                "content" => $results,
+            ]);
+        } catch (Exception $e) {
+            $this->setErrorMsg(400,$e->getMessage());
+            return $this->response;
+        }
+    }
     public function post()
     {
-        $data = $this->request->getJsonRawBody();
-        if (!$this->checkattr($data)) {
-            $response = new Response();
-            $response->setStatusCode(400);
-            $response->setJsonContent(
-                [
-                    'status' => "Fail",
-                    'message'=> 'Field should be not null'
-                ]
-            );
-            return $response;
+        try {
+            $data = $this->request->getJsonRawBody();
+            if (!$this->checkattr($data)) {
+                $this->setErrorMsg('409', "Data validation Failed");
+                return $this->response;
+            }
+
+            $product = $this->getDatafromRequest($data);
+            // Store and check for errors
+
+            $result = $product->save();
+
+            if ($result === true) {
+                $this->response->setJsonContent(
+                    [
+                        'status' => 'OK',
+                        'data'   => $product,
+                    ]
+                );
+            } else {
+                $this->setErrorMsg('409', "Can't create this item");
+            }
+            return $this->response;
+        } catch(Exception $e){
+            $this->setErrorMsg(400,$e->getMessage());
+            return $this->response;
         }
-
-
-        $product = $this->getData($data);
-        // Store and check for errors
-        $success = $product->save();
-
-        $response = new Response();
-        $response->setStatusCode(201, 'Created');
-        $response->setJsonContent(
-            [
-                'status' => $success,
-                'data'   => $product
-            ]
-        );
-        return $response;
     }
-
     private function checkattr($data,$put=false) {
         $attr = ['name', 'brand', 'sku', 'size','color'];
         foreach ($attr as $item) {
@@ -106,38 +97,37 @@ class ProductController extends Controller
         return true;
     }
     public function delete($id) {
-        $product = Models\Product::findFirst($id);
-        if ($product) {
+        try {
+            $product = Models\Product::findFirst($id);
+            if (!$product) {
+                $this->setErrorMsg('409', "Can't find the deleted item");
+                return $this->response;
+            }
             $result = $product->delete();
-        } else {
-            $result = false;
+
+            if ($result === true) {
+                $this->response->setJsonContent(
+                    [
+                        'msg' => 'success'
+                    ]
+                );
+            } else {
+                $this->setErrorMsg('409', "Can't delete this item");
+            }
+            return $this->response;
+        } catch(Exception $e){
+            $this->setErrorMsg(400,$e->getMessage());
+            return $this->response;
         }
-
-        $response = new Response();
-
-        if ($result === true) {
-            $response->setJsonContent(
-                [
-                    'status' => 'OK'
-                ]
-            );
-        } else {
-            $response->setStatusCode(409, 'Conflict');
-
-            $response->setJsonContent(
-                [
-                    'status'   => 'ERROR',
-                    'messages' => "Can't delete this item",
-                ]
-            );
-        }
-        return $response;
     }
-    private function getData($data, $id =0) {
+    private function getDatafromRequest($data, $id =0) {
         if (($id) == 0) {
             $product = new Models\Product();
         }  else {
             $product = Models\Product::findFirst($id);
+            if (!$product) {
+                return null;
+            }
         }
         $product->name  = $data->name;
         $product->brand = $data->brand;
@@ -154,47 +144,30 @@ class ProductController extends Controller
         return $product;
     }
     public function edit($id) {
-        $data = $this->request->getJsonRawBody();
-        if (!$this->checkattr($data,true)) {
-            $response = new Response();
-            $response->setStatusCode(400);
-            $response->setJsonContent(
-                [
-                    'status' => "Fail",
-                    'message'=> 'Field should be not null'
-                ]
-            );
-            return $response;
-        }
-
-        $product = $this->getData($data,$id);
-        $result = $product->save();
-
-        $response = new Response();
-
-        if ($result === true) {
-            $response->setJsonContent(
-                [
-                    'status' => 'OK',
-                    'data'   => $product,
-                ]
-            );
-        } else {
-            $response->setStatusCode(409, 'Conflict');
-            $messages_tring = "";
-            $messages = $product->getMessages();
-            foreach ($messages as $message) {
-                //$name = $message.getMessage();
-                $name = " Error";
-                $messages_tring."Validation error: ".$name."\n";
+        try {
+            $data = $this->request->getJsonRawBody();
+            if (!$this->checkattr($data,true)) {
+                $this->setErrorMsg('409', "Data validation Failed");
+                return $this->response;
             }
-            $response->setJsonContent(
-                [
-                    'status'   => 'ERROR',
-                    'messages' => $messages_tring
-                ]
-            );
+
+            $product = $this->getDatafromRequest($data,$id);
+            $result = $product->save();
+
+            if ($result === true) {
+                $this->response->setJsonContent(
+                    [
+                        'status' => 'OK',
+                        'data'   => $product,
+                    ]
+                );
+            } else {
+                $this->setErrorMsg('409', "Can't edit this item");
+            }
+            return $this->response;
+        } catch(Exception $e){
+            $this->setErrorMsg(400,$e->getMessage());
+            return $this->response;
         }
-        return $response;
     }
 }

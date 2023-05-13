@@ -43,9 +43,6 @@ class Product extends Model
         );
     }
 
-    public function getSupplier() {
-        return $this->getRelated('ProductSupply');
-    }
     public function validation()
     {
         $validator = new Validation();
@@ -62,6 +59,7 @@ class Product extends Model
                 ]
             )
         );
+        //status: activate
         return $this->validate($validator);
     }
 }
