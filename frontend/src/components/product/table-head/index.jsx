@@ -1,9 +1,10 @@
 import { Toolbar, alpha, Typography, Tooltip, IconButton } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import FilterListIcon from '@mui/icons-material/FilterList'
+import { AddCircleOutline } from '@mui/icons-material'
 
 export default function ProductTableHead(props) {
-  const { rowSelected, deleteRowHandler } = props
+  const { rowSelected, deleteRowHandler, openCreateModal } = props
 
   return (
     <Toolbar
@@ -47,11 +48,18 @@ export default function ProductTableHead(props) {
           </IconButton>
         </Tooltip>
       ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
+        <div style={{ display: 'flex', flexDirection: 'row' }}>
+          <Tooltip title="Filter list">
+            <IconButton>
+              <FilterListIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Add new product" onClick={() => openCreateModal()}>
+            <IconButton>
+              <AddCircleOutline />
+            </IconButton>
+          </Tooltip>
+        </div>
       )}
     </Toolbar>
   )

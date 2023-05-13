@@ -16,22 +16,19 @@ export default function ListItemsSideBar() {
   return (
     <List component="nav">
       <React.Fragment>
-        <Link to={'/'} style={{ color: 'black' }}>
-          <ListItemButton>
-            <ListItemIcon>
-              <DashboardIcon />
-            </ListItemIcon>
-            <ListItemText primary="Products" />
-          </ListItemButton>
-        </Link>
-        <Link to={'/suppliers'} style={{ color: 'black' }}>
-          <ListItemButton>
-            <ListItemIcon>
-              <ShoppingCartIcon />
-            </ListItemIcon>
-            <ListItemText primary="Suppliers" />
-          </ListItemButton>
-        </Link>
+        <ListItemButton component={Link} to={'/'}>
+          <ListItemIcon>
+            <DashboardIcon />
+          </ListItemIcon>
+          <ListItemText primary="Products" />
+        </ListItemButton>
+
+        <ListItemButton component={Link} to={'/suppliers'}>
+          <ListItemIcon>
+            <ShoppingCartIcon />
+          </ListItemIcon>
+          <ListItemText primary="Suppliers" />
+        </ListItemButton>
       </React.Fragment>
       <Divider sx={{ my: 1 }} />
       <React.Fragment>

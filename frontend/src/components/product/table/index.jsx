@@ -3,11 +3,12 @@ import { Button, Container, Paper } from '@mui/material'
 import styles from './styles.module.scss'
 import Title from 'components/title'
 import { ProductDataList } from 'services/dummy-data'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ProductAPI } from 'services/api'
 import ProductTableHead from '../table-head'
 import ModalEditProductTable from '../edit-modal'
 import { Link as RouterLink } from 'react-router-dom'
+import ModalFormNewProduct from '../new-form'
 
 // Generate Order Data
 // GridColDef[]
@@ -20,11 +21,21 @@ const dummy = ProductDataList.concat(ProductDataList)
       ...other,
     }
   })
+// const concernedElement = document.querySelector('.click-text')
+// document.addEventListener('mousedown', (event) => {
+//   console.log(concernedElement)
+//   if (concernedElement?.contains(event.target)) {
+//     console.log('Clicked Inside')
+//   } else {
+//     console.log('Clicked Outside / Elsewhere')
+//   }
+// })
 export default function ProductTable() {
   const [loading, setLoading] = useState(false)
   const [productList, setProductList] = useState(dummy)
+  const tableRef = useRef()
   const [rowSelectionIndex, setRowSelectionIndex] = useState([])
-  const [openModalInfo, setOpenModalInfo] = useState(false)
+  const [openCreateModal, setOpenCreateModal] = useState(false)
   const [openEditModal, setOpenEditModal] = useState(false)
   const [selectedRow, setSelectedRow] = useState(null)
   const handleRowSelection = (newSelectedRow) => {
@@ -41,15 +52,12 @@ export default function ProductTable() {
       }
       return true
     })
+    setSelectedRow(null)
     setProductList(newList)
     setRowSelectionIndex([])
     // setLoading(true)
     // call API delete multiple products
     // setLoading(false)
-  }
-  const showMoreHandler = (row) => {
-    setSelectedRow(row)
-    setOpenModalInfo(true)
   }
 
   const editModalHandler = (product) => {
@@ -61,14 +69,34 @@ export default function ProductTable() {
     if (product == null) {
       return
     }
-    for (let current of productList) {
-      if (product.id === current.id) {
-        current = product
-        break
+    if (product?.id == null) {
+      // When create new product, but doesn't have field id
+      // set for reload table
+      setProductList(product.push(product))
+    } else {
+      for (let current of productList) {
+        if (product.id === current.id) {
+          current = product
+          break
+        }
       }
     }
     setProductList(productList)
   }
+
+  useEffect(() => {
+    // 👇️ use a ref (best)
+    const element = tableRef.current
+    console.log(element)
+
+    document.addEventListener('mousedown', (event) => {
+      if (element?.contains(event.target)) {
+        console.log('Clicked Inside')
+      } else {
+        setRowSelectionIndex([])
+      }
+    })
+  }, [])
 
   /* First reload page and reload whenever productList change, uncomment it
   when API is called successfully */
@@ -108,7 +136,6 @@ export default function ProductTable() {
               variant="contained"
               size="small"
               style={{ marginRight: 10 }}
-              // onClick={() => showMoreHandler(product)}
               component={RouterLink}
               to={`product/${product.id}`}
             >
@@ -129,41 +156,48 @@ export default function ProductTable() {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-        <ProductTableHead
-          rowSelected={rowSelectionIndex.length}
-          deleteRowHandler={deleteRowHandler}
-          sx={{ ml: 2 }}
-        />
-        {selectedRow && (
-          <ModalEditProductTable
-            productInfo={selectedRow}
-            // setProductInfo={(info) => setSelectedRow(info)}
-            open={openEditModal}
-            setClose={() => setOpenEditModal(false)}
-            setEditProduct={() => setEditProduct()}
+        <div ref={tableRef} style={{ margin: 20, padding: 10 }}>
+          <ProductTableHead
+            openCreateModal={() => {
+              setOpenCreateModal(true)
+            }}
+            rowSelected={rowSelectionIndex.length}
+            deleteRowHandler={deleteRowHandler}
           />
-        )}
-
-        <DataGrid
-          rows={productList}
-          columns={columns}
-          sx={{ ml: 2 }}
-          initialState={{
-            pagination: {
-              paginationModel: { page: 0, pageSize: 10 },
-            },
-          }}
-          pageSizeOptions={[10, 50]}
-          // checkboxSelection
-          loading={loading}
-          onRowSelectionModelChange={handleRowSelection}
-          rowSelectionModel={rowSelectionIndex}
-          onSortModelChange={(first) => {
-            // array [{field: '', sort: 'asc' | 'desc'}]
-            // console.log(first)
-          }}
-        />
+          <DataGrid
+            rows={productList}
+            columns={columns}
+            initialState={{
+              pagination: {
+                paginationModel: { page: 0, pageSize: 10 },
+              },
+            }}
+            pageSizeOptions={[10, 50]}
+            // checkboxSelection
+            loading={loading}
+            onRowSelectionModelChange={handleRowSelection}
+            rowSelectionModel={rowSelectionIndex}
+            onSortModelChange={(first) => {
+              // array [{field: '', sort: 'asc' | 'desc'}]
+              // console.log(first)
+            }}
+          />
+        </div>
       </Paper>
+      {selectedRow && (
+        <ModalEditProductTable
+          productInfo={selectedRow}
+          // setProductInfo={(info) => setSelectedRow(info)}
+          open={openEditModal}
+          setClose={() => setOpenEditModal(false)}
+          setEditProduct={() => setEditProduct()}
+        />
+      )}
+      <ModalFormNewProduct
+        open={openCreateModal}
+        setClose={() => setOpenCreateModal(false)}
+        setEditProduct={() => setEditProduct()}
+      />
     </Container>
   )
 }
