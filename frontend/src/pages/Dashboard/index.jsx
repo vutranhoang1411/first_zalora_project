@@ -1,8 +1,13 @@
-import React from 'react'
-import CustomTable from 'components/table'
+import React, { useEffect, useState } from 'react'
+import ModalInfo from 'components/modal'
+import ProductTable from 'components/product/table'
 
 export const DashboardPage = () => {
-  return <CustomTable />
+  return (
+    <>
+      <ProductTable />
+    </>
+  )
 }
 
 // export default Dashboard
