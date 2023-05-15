@@ -10,7 +10,6 @@ class Supplier extends Model
     public $name;
     public $email;
     public $number;
-    public $total_stock;
     public $status;
 
     public function initialize()

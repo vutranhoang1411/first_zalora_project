@@ -13,7 +13,6 @@ class Product extends Model
     public $size;
     public $color;
     public $status;
-    public $total_stock;
 
     public function initialize()
     {

@@ -79,7 +79,7 @@ CREATE TABLE `address` (
   `supplierid` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `supplierid` (`supplierid`),
-  CONSTRAINT `address_ibfk_1` FOREIGN KEY (`supplierid`) REFERENCES `supplier` (`id`)
+  CONSTRAINT `address_ibfk_1` FOREIGN KEY (`supplierid`) REFERENCES `supplier` (`id`) on delete cascade
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `address` (`addr`, `type`, `supplierid`) VALUES ('3943 Crist Ramp Suite 868', 'office', 1);
@@ -114,8 +114,8 @@ CREATE TABLE `productsupply` (
   PRIMARY KEY (`id`),
   KEY `productid` (`productid`),
   KEY `supplierid` (`supplierid`),
-  CONSTRAINT `productsupply_ibfk_1` FOREIGN KEY (`productid`) REFERENCES `product` (`id`),
-  CONSTRAINT `productsupply_ibfk_2` FOREIGN KEY (`supplierid`) REFERENCES `supplier` (`id`)
+  CONSTRAINT `productsupply_ibfk_1` FOREIGN KEY (`productid`) REFERENCES `product` (`id`) on delete cascade,
+  CONSTRAINT `productsupply_ibfk_2` FOREIGN KEY (`supplierid`) REFERENCES `supplier` (`id`) on delete cascade
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `productsupply` (`id`, `productid`, `supplierid`, `stock`) VALUES (1, 17, 11, 10);

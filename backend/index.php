@@ -11,12 +11,13 @@
     $loader=new PLoader();
     $loader->setNamespaces(
         [
+            'MyApp\Repository'=>'repository',
             'MyApp\Models' => 'models',
             'MyApp\Controllers' => 'controllers',
         ]
     );
-    $loader->register();
 
+    $loader->register();
     //Load DI container
     $DIcontainer = new FactoryDefault();
     $DIcontainer->set(
@@ -24,6 +25,14 @@
         function (){
             return (new ConfLoader('.env'))->parse()->toArray();
         }
+    );
+    $DIcontainer->set(
+        'supplier_repo',
+        new MyApp\Repository\SupplierRepo($DIcontainer)
+    );
+    $DIcontainer->set(
+        'productsup_repo',
+        new MyApp\Repository\ProductSupRepo($DIcontainer)
     );
     $DIcontainer->set(
         'db',
@@ -45,32 +54,33 @@
     $suppliers
         ->setHandler(MyApp\Controllers\SupplierController::class,true)
         ->setPrefix("/supplier")
-        ->get("/","get")
-        ->post("/new","post")
-        ->post("/update","put")
-        ->post("/delete","delete");
-    // $addresses=new MicroCollection();
-    // $addresses
-    //     ->setHandler(MyApp\Controllers\AddressController::class,true)
-    //     ->setPrefix("/address")
-    //     ->post("/new","post")
-    //     ->post("/update","put")
-    //     ->post("/delete","delete");
-
+        ->get("/","getAllSupplier")
+        ->post("/","newSupplier")
+        ->put("/","updateSupplier")
+        ->delete("/{id:[0-9]+}","deleteSupplier");
+    $addresses=new MicroCollection();
+    $addresses
+        ->setHandler(MyApp\Controllers\AddressController::class,true)
+        ->setPrefix("/address")
+        ->get("/","getAddress");
+    
+    $productSupply=new MicroCollection();
+    $productSupply
+        ->setHandler(MyApp\Controllers\ProductSupplyController::class,true)
+        ->setPrefix("/productsupply")
+        ->get("/","getProductSupply")
+        ->post("/","newProductSupply")
+        ->put("/","updateProductSupply")
+        ->delete("/{id:[0-9]+}","deleteProductSupply");
+    $app=new \MyApp\Controllers\AddressController();
     $app=new Micro($DIcontainer);
     $app->mount($suppliers);
-    // $app->mount($addresses);
+    $app->mount($productSupply);
+    $app->mount($addresses);
     $app->notFound(function(){
         echo "Page not found";
     });
-    try {
-        $app->handle($_SERVER["REQUEST_URI"]);
-    }catch (Exception $e){
-        $app->response->setJsonContent([
-            "code"=>$e->getCode(),
-            "message"=>$e->getMessage()
-        ]);
-    }
+    $app->handle($_SERVER["REQUEST_URI"]);
 
 
     
