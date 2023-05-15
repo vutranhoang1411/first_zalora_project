@@ -46,9 +46,9 @@ class ProductController extends BaseController
             ]);
             $this->setHeader();
             $this->response->setStatusCode(200);
-            return $this->response->setJsonContent([
-                "content" => $results,
-            ]);
+            return $this->response->setJsonContent(
+                $results
+            );
         } catch (Exception $e) {
             $this->setErrorMsg(400,$e->getMessage());
             return $this->response;

@@ -68,7 +68,7 @@
 
     $products = new MicroCollection();
     $products
-        ->setHandler(ProductController::class,True)
+        ->setHandler(MyApp\Controllers\ProductController::class,True)
         ->setPrefix('/api/product')
         ->get('/', 'index')
         ->post("/","post")
