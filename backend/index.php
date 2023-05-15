@@ -49,6 +49,8 @@
             );
         }
     );
+
+    
     //router object;
     $suppliers=new MicroCollection();
     $suppliers
@@ -64,15 +66,6 @@
         ->setPrefix("/address")
         ->get("/","getAddress");
 
-    $productSupply=new MicroCollection();
-    $productSupply
-        ->setHandler(MyApp\Controllers\ProductSupplyController::class,true)
-        ->setPrefix("/productsupply")
-        ->get("/","getProductSupply")
-        ->post("/","newProductSupply")
-        ->put("/","updateProductSupply")
-        ->delete("/{id:[0-9]+}","deleteProductSupply");
-
     $products = new MicroCollection();
     $products
         ->setHandler(ProductController::class,True)
@@ -80,15 +73,30 @@
         ->get('/', 'index')
         ->post("/","post")
         ->delete("/{id:[0-g9]+}",'delete')
-        ->post("/{id:[0-9]+}",'edit')
-    ;
+        ->post("/{id:[0-9]+}",'edit');
+        
+    // $addresses=new MicroCollection();
+    // $addresses
+    //     ->setHandler(MyApp\Controllers\AddressController::class,true)
+    //     ->setPrefix("/address")
+    //     ->post("/new","post")
+    //     ->post("/update","put")
+    //     ->post("/delete","delete");
+
+    $productSupply = new MicroCollection();
+    $productSupply
+        -> setHandler(MyApp\Controllers\ProductSupplyController::class,true)
+        -> setPrefix("/api/productsupply")
+        -> get("/", "getSuppliersByQuery")
+        -> delete("/{id:[0-9]+}", "deleteSupplierByProductSupplierId");
 
     $app=new Micro($DIcontainer);
+
     $app->mount($suppliers);
     $app->mount($productSupply);
     $app->mount($addresses);
     $app->mount($products);
-    $app->mount($addresses);
+    
     $app->notFound(function(){
         echo "Page not found";
     });
