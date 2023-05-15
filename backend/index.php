@@ -85,16 +85,18 @@
 
     $productSupply = new MicroCollection();
     $productSupply
-        -> setHandler(MyApp\Controllers\ProductSupplierController::class,true)
+        -> setHandler(MyApp\Controllers\ProductSupplyController::class,true)
         -> setPrefix("/api/productsupply")
-        -> get("/", getSuppliersByQuery);
+        -> get("/", "getSuppliersByQuery")
+        -> delete("/{id:[0-9]+}", "deleteSupplierByProductSupplierId");
 
     $app=new Micro($DIcontainer);
+
     $app->mount($suppliers);
     $app->mount($productSupply);
     $app->mount($addresses);
     $app->mount($products);
-    $app->mount($addresses);
+    
     $app->notFound(function(){
         echo "Page not found";
     });
