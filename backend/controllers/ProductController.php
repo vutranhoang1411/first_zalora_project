@@ -13,6 +13,7 @@ class ProductController extends BaseController
 {
     public function index()
     {
+        $this->setHeader();
         try {
             $reqQuery = $this->request->getQuery();
 
@@ -43,6 +44,7 @@ class ProductController extends BaseController
                 'conditions' => implode(' AND ', $conditions),
                 'bind' => $bindParams,
             ]);
+            $this->setHeader();
             $this->response->setStatusCode(200);
             return $this->response->setJsonContent([
                 "content" => $results,
@@ -54,6 +56,7 @@ class ProductController extends BaseController
     }
     public function post()
     {
+        $this->setHeader();
         try {
             $data = $this->request->getJsonRawBody();
             if (!$this->checkattr($data)) {
@@ -97,6 +100,7 @@ class ProductController extends BaseController
         return true;
     }
     public function delete($id) {
+        $this->setHeader();
         try {
             $product = Models\Product::findFirst($id);
             if (!$product) {
@@ -144,6 +148,7 @@ class ProductController extends BaseController
         return $product;
     }
     public function edit($id) {
+        $this->setHeader();
         try {
             $data = $this->request->getJsonRawBody();
             if (!$this->checkattr($data,true)) {
