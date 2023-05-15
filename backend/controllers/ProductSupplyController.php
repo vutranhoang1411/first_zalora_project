@@ -8,6 +8,7 @@ use Phalcon\Http\ResponseInterface;
 
 class ProductSupplyController extends BaseController{
   public function getSuppliersByQuery() {
+    $this->setHeader();
     try {
       $reqQuery = $this->request->getQuery();
       $PHQL = "select PS.id as id, S.name as suppliername, PS.stock as stock from MyApp\Models\ProductSupply as PS
@@ -37,6 +38,7 @@ class ProductSupplyController extends BaseController{
   }
 
   public function deleteSupplierByProductSupplierId($id) {
+    $this->setHeader();
     try {
       // $reqQuery = $this->request->getQuery();
       $PHQL = "delete from MyApp\Models\ProductSupply WHERE id=:productsupplyid:";

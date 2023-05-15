@@ -7,6 +7,7 @@
     use josegonzalez\Dotenv\Loader as ConfLoader;
     use Phalcon\Mvc\Micro;
 
+
     //load needed module
     $loader=new PLoader();
     $loader->setNamespaces(
@@ -55,7 +56,7 @@
     $suppliers=new MicroCollection();
     $suppliers
         ->setHandler(MyApp\Controllers\SupplierController::class,true)
-        ->setPrefix("/supplier")
+        ->setPrefix("api/supplier")
         ->get("/","getAllSupplier")
         ->post("/","newSupplier")
         ->put("/","updateSupplier")
@@ -96,7 +97,7 @@
     $app->mount($productSupply);
     $app->mount($addresses);
     $app->mount($products);
-    
+
     $app->notFound(function(){
         echo "Page not found";
     });
