@@ -7,54 +7,72 @@ use Phalcon\Mvc\Controller;
 use Phalcon\Http\ResponseInterface;
 
 class ProductSupplyController extends BaseController{
-  public function getSuppliersByQuery() {
-    $this->setHeader();
-    try {
-      $reqQuery = $this->request->getQuery();
-      $PHQL = "select PS.id as id, S.name as suppliername, PS.stock as stock from MyApp\Models\ProductSupply as PS
-              LEFT JOIN MyApp\Models\Supplier as S
-              ON PS.supplierid = S.id
-              WHERE true";
-      $param=[];
+	public function getSuppliersOfProduct() {
+    	$this->setHeader();
+    	try {
+    	  $reqQuery = $this->request->getQuery();  
+    	  $res = $this->productsup_repo->getSupplierOfProduct($reqQuery);	
+    	} catch (Exception $error) {
+    	  $this->setErrorMsg(400,$error->getMessage());
+    	  return $this->response;
+    	}
+		$this->response->setJsonContent($res);
+    	return $this->response;
+  	}
+  	public function newProductSupply(){
+  	  	$reqPost=$this->request->getJsonRawBody();
+  	  	$needField=["productid","supplierid","stock"];
+  	  	if (!$this->checkExistField($needField,$reqPost)){
+  	  	  	return $this->response;
+  	  	} 
+  	  	if (!is_numeric($reqPost->productid)){
+  	  	  	$this->setErrorMsg(400,"invalid productid");
+  	  	  	return $this->response;
+  	  	}
+  	  	if (!is_numeric($reqPost->supplierid)){
+  	  	  	$this->setErrorMsg(400,"invalid supplierid");
+  	  	  	return $this->response;
+  	  	}
+  	  	if (!is_numeric($reqPost->stock)){
+  	  	  	$this->setErrorMsg(400,"invalid stock");
+  	  	  	return $this->response;
+  	  	}
+		$param=[];
+		foreach ($needField as $field){
+			$param[$field]=$reqPost->{$field};
+		}
+		try{
+			$record=$this->productsup_repo->insertProductSupply($param);
+			if (!$record->success()){
+				$this->setErrorMsg(400,$record->getMessages()[0]);
+				return $this->response;
+			}
 
-      if (array_key_exists('productId',$reqQuery)){
-          $param["productId"]=$reqQuery["productId"];
-          $PHQL = $PHQL." and PS.productid = :productId:";
-      }
-
-      if (array_key_exists('supplierId',$reqQuery)){
-        $PHQL = $PHQL. " and S.id = :supplierId:";
-        $param["supplierId"]=$reqQuery["supplierId"];
-      }
-      
-      $queryRequest = $this->modelsManager->executeQuery($PHQL, $param);
-      $this->response->setJsonContent($queryRequest);
-      return $this->response;
-        
-    } catch (Exception $error) {
-      $this->setErrorMsg(400,$error->getMessage());
-      return $this->response;
-    }
-  }
-
-  public function deleteSupplierByProductSupplierId($id) {
-    $this->setHeader();
-    try {
-      // $reqQuery = $this->request->getQuery();
-      $PHQL = "delete from MyApp\Models\ProductSupply WHERE id=:productsupplyid:";
-      $param=[];
-      $param["productsupplyid"]=$id;    
-      $queryRequest = $this->modelsManager->executeQuery($PHQL, $param);
-      $this->response->setStatusCode(200);
-      $this->response->setJsonContent([
-        'msg' => 'success'
-      ]);
-      return $this->response;
-        
-    } catch (Exception $error) {
-      $this->setErrorMsg(400,$error->getMessage());
-      return $this->response;
-    }
-
-  }
+		}catch(Exception $e){
+			$this->setErrorMsg(400,$e->getMessage());
+			return $this->response;
+		}
+		$this->response->setJsonContent([
+            "msg"=>"success",
+        ]);
+        return $this->response;  
+		
+  	}
+  	public function deleteProductSupply($id) {
+    	$this->setHeader();
+    	try {  
+    		$record= $this->productsup_repo->deleteProductSupply($id);
+    	  	if (!$record->success()){
+    	  	  	$this->setErrorMsg(400,$record->getMessages()[0]);
+    	  	  	return $this->response;
+    	  	}
+    	}catch (Exception $error) {
+    	  	$this->setErrorMsg(400,$error->getMessage());
+    	  	return $this->response;
+    	}
+		$this->response->setJsonContent([
+			'msg' => 'success'
+		]);
+		return $this->response;
+	}
 }

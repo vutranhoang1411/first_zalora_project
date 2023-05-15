@@ -3,7 +3,16 @@
     use Phalcon\Di\Injectable;
 
     class AddressRepo extends Injectable{
-        public function addAddress($param){
+        public function getAddress(array $filter){
+            $PHQL="select * from MyApp\Models\Address";
+            $param=[];
+            if (array_key_exists("supplierid",$filter)){
+                $PHQL=$PHQL." where supplierid=:supplierid:";
+                $param["supplierid"]=$filter["supplierid"];
+            }
+            return $this->modelsManager->executeQuery($PHQL,$param);
+        }
+        public function addAddress(array $param){
             $PHQL="insert into MyApp\Models\Address(addr,type,supplierid) values(:addr:,:type:,:supplierid:)";
             return $this->modelsManager->executeQuery($PHQL,$param);
         }

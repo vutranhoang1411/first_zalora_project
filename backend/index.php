@@ -48,7 +48,7 @@
     $suppliers=new MicroCollection();
     $suppliers
         ->setHandler(MyApp\Controllers\SupplierController::class,true)
-        ->setPrefix("api/supplier")
+        ->setPrefix("/api/supplier")
         ->get("/","getAllSupplier")
         ->post("/","newSupplier")
         ->put("/","updateSupplier")
@@ -56,7 +56,7 @@
     $addresses=new MicroCollection();
     $addresses
         ->setHandler(MyApp\Controllers\AddressController::class,true)
-        ->setPrefix("/address")
+        ->setPrefix("/api/address")
         ->get("/","getAddress");
 
     $products = new MicroCollection();
@@ -71,8 +71,9 @@
     $productSupply
         -> setHandler(MyApp\Controllers\ProductSupplyController::class,true)
         -> setPrefix("/api/productsupply")
-        -> get("/", "getSuppliersByQuery")
-        -> delete("/{id:[0-9]+}", "deleteSupplierByProductSupplierId");
+        -> get("/supplier", "getSuppliersOfProduct")
+        -> delete("/{id:[0-9]+}", "deleteProductSupply")
+        -> post("/","newProductSupply");
 
     $app=new Micro($DIcontainer);
 

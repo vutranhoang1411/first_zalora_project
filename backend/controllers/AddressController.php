@@ -7,13 +7,7 @@
             try{
                 $this->setHeader();
                 $reqQuery=$this->request->getQuery();
-                $PHQL="select * from MyApp\Models\Address";
-                $param=[];
-                if (array_key_exists("supplierid",$reqQuery)){
-                    $PHQL=$PHQL." where supplierid=:supplierid:";
-                    $param["supplierid"]=$reqQuery["supplierid"];
-                }
-                $addresses=$this->modelsManager->executeQuery($PHQL,$param);
+                $addresses=$this->address_repo->getAddress($reqQuery);
                 $this->response->setJsonContent($addresses);
                 return $this->response;
             }catch (Exception $e){
