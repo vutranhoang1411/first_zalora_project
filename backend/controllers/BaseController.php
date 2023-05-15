@@ -31,4 +31,7 @@
             }
             return true;  
         }
+        protected function setHeader () {
+            $this->response->setHeader('Access-Control-Allow-Origin', '*');
+        }
     }

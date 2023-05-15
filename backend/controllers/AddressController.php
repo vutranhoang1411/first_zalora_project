@@ -5,6 +5,7 @@
     class AddressController extends BaseController{
         public function getAddress(){
             try{
+                $this->setHeader();
                 $reqQuery=$this->request->getQuery();
                 $PHQL="select * from MyApp\Models\Address";
                 $param=[];

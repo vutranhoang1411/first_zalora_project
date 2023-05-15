@@ -7,6 +7,7 @@
     use josegonzalez\Dotenv\Loader as ConfLoader;
     use Phalcon\Mvc\Micro;
 
+
     //load needed module
     $loader=new PLoader();
     $loader->setNamespaces(
@@ -27,14 +28,6 @@
         }
     );
     $DIcontainer->set(
-        'supplier_repo',
-        new MyApp\Repository\SupplierRepo($DIcontainer)
-    );
-    $DIcontainer->set(
-        'productsup_repo',
-        new MyApp\Repository\ProductSupRepo($DIcontainer)
-    );
-    $DIcontainer->set(
         'db',
         function (){
             $config=$this->get('app_conf');
@@ -49,11 +42,13 @@
             );
         }
     );
+
+    
     //router object;
     $suppliers=new MicroCollection();
     $suppliers
         ->setHandler(MyApp\Controllers\SupplierController::class,true)
-        ->setPrefix("/supplier")
+        ->setPrefix("api/supplier")
         ->get("/","getAllSupplier")
         ->post("/","newSupplier")
         ->put("/","updateSupplier")
@@ -63,10 +58,28 @@
         ->setHandler(MyApp\Controllers\AddressController::class,true)
         ->setPrefix("/address")
         ->get("/","getAddress");
-    
+
+    $products = new MicroCollection();
+    $products
+        ->setHandler(MyApp\Controllers\ProductController::class,True)
+        ->setPrefix('/api/product')
+        ->get('/', 'index')
+        ->post("/","post")
+        ->delete("/{id:[0-g9]+}",'delete')
+        ->post("/{id:[0-9]+}",'edit');
+    $productSupply = new MicroCollection();
+    $productSupply
+        -> setHandler(MyApp\Controllers\ProductSupplyController::class,true)
+        -> setPrefix("/api/productsupply")
+        -> get("/", "getSuppliersByQuery")
+        -> delete("/{id:[0-9]+}", "deleteSupplierByProductSupplierId");
+
     $app=new Micro($DIcontainer);
+
     $app->mount($suppliers);
     $app->mount($addresses);
+    $app->mount($products);
+    $app->mount($productSupply);
     $app->notFound(function(){
         echo "Page not found";
     });

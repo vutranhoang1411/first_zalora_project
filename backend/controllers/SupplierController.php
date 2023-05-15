@@ -9,6 +9,7 @@ class SupplierController extends BaseController{
 
     public function getAllSupplier(){
         try{
+            $this->setHeader();
             $reqQuery = $this->request->getQuery();
 
             $suppliers=$this->supplier_repo->getActiveSuppliers($reqQuery);
