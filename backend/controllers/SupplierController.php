@@ -161,4 +161,29 @@ class SupplierController extends BaseController{
         return $this->response;
         
     }
+    public function getSuppliersByProductId($productId) {
+        try {
+            $reqPost=$this->request->getPost();
+            $PHQL = 'select S.id, S.name, S.stock FROM MyApp\Models\Supplier AS S
+                    join MyApp\Models\ProductSupplier as PS
+                    on PS.supplierid = S.id
+                    WHERE P.productid = :productId:';
+            $query = $this->modelsManager->executeQuery($PHQL, 
+                [
+                    'productId' => productId,
+                ]);
+            echo '---GET SUPPLIERS -> ', $productId;
+            $this->response->setJsonContent([
+                "msg"=>"success",
+            ]);
+            return $this->response;
+        } catch (Exception $error) {
+            $this->setErrorMsg(400,$e->getMessage());
+            return $this->response;
+        }
+    }
+
+    public function createNewSupplierForProduct() {
+
+    }
 }
