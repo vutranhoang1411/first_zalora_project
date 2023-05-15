@@ -1,16 +1,19 @@
 <?php
     namespace MyApp\Controllers;
 
+    use MyApp\Repository\AddressRepo;
     use Phalcon\Mvc\Controller;
     use MyApp\Repository\SupplierRepo;
     use MyApp\Repository\ProductSupRepo;
+    
     class BaseController extends Controller{
-        protected $supplier_repo;
-        protected $productsup_repo;
-
+        protected SupplierRepo $supplier_repo;
+        protected ProductSupRepo $productsup_repo;
+        protected AddressRepo $address_repo;
         public function onConstruct(){
             $this->supplier_repo=new SupplierRepo();
             $this->productsup_repo=new ProductSupRepo();
+            $this->address_repo=new AddressRepo();
         }
         protected function setErrorMsg(int $code,string $msg){
             $this->response->setStatusCode($code);

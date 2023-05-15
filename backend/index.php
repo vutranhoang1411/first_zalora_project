@@ -64,18 +64,8 @@
         ->setPrefix("/address")
         ->get("/","getAddress");
     
-    $productSupply=new MicroCollection();
-    $productSupply
-        ->setHandler(MyApp\Controllers\ProductSupplyController::class,true)
-        ->setPrefix("/productsupply")
-        ->get("/","getProductSupply")
-        ->post("/","newProductSupply")
-        ->put("/","updateProductSupply")
-        ->delete("/{id:[0-9]+}","deleteProductSupply");
-    $app=new \MyApp\Controllers\AddressController();
     $app=new Micro($DIcontainer);
     $app->mount($suppliers);
-    $app->mount($productSupply);
     $app->mount($addresses);
     $app->notFound(function(){
         echo "Page not found";

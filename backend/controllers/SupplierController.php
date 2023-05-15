@@ -54,32 +54,38 @@ class SupplierController extends BaseController{
             return $this->response;
         }
         try{
-            //start transaction
             $this->db->begin();
-
-            //insert supplier
+            
             $param=[];
             foreach ($needField as $field){
                 $param[$field]=$reqPost->{$field};
             }
-            $PHQL="insert into MyApp\Models\Supplier(name,email,number) values(:name:,:email:,:number:)";
-            $record=$this->modelsManager->executeQuery($PHQL,$param);
+            //insert supplier
+            $record=$this->supplier_repo->addSupplier($param);
+
             if (!$record->success()){
                 $this->db->rollback();
                 $this->setErrorMsg(400,$record->getMessages()[0]);
                 return $this->response;
             }
             
-            //insert address
+            //get previous inserted supplierid
             $supplierid=$this->db->query("select last_insert_id() as supplier_id")->fetch()["supplier_id"];
-            $PHQL="insert into MyApp\Models\Address(addr,type,supplierid) values(:addr:,:type:,:supplierid:)";
-            $addrArray=$reqPost->address;
 
-            foreach ($addrArray as $addr){
-                $record=$this->modelsManager->executeQuery($PHQL,[
+            //insert address
+            foreach ($reqPost->address as $addr){
+                if (!property_exists($addr,"addr")){
+                    $this->setErrorMsg("400","missing address name in inserted address");
+                    return $this->response;
+                }
+                if (!property_exists($addr,"type")){
+                    $this->setErrorMsg("400","missing address type in inserted address");
+                    return $this->response;
+                }
+                $record=$this->address_repo->addAddress([
                     "addr"=>$addr->addr,
                     "type"=>$addr->type,
-                    "supplierid"=>$supplierid
+                    "supplierid"=>$supplierid,
                 ]);
                 if (!$record->success()){
                     $this->db->rollback();
@@ -87,6 +93,7 @@ class SupplierController extends BaseController{
                     return $this->response;
                 }
             }
+            //commit if all query success
             $this->db->commit();
             $this->response->setJsonContent([
                 "msg"=>"success",
@@ -102,7 +109,6 @@ class SupplierController extends BaseController{
 
     public function updateSupplier(){
         $reqPost=$this->request->getJsonRawBody();
-        $PHQL="update MyApp\Models\Supplier set name=:name:,email=:email:,number=:number:,status=:status: where id=:id:";
         //validate input
         $needField=["name","email","number","status","id"];
         if (!$this->checkExistField($needField)){
@@ -126,14 +132,13 @@ class SupplierController extends BaseController{
 
         //query
         try{ 
-            $record=$this->modelsManager->executeQuery($PHQL,$param);
+            $record=$this->supplier_repo->updateSupplier($param);
+            if (!$record->success()){
+                $this->setErrorMsg(400,$record->getMessages()[0]);
+                return $this->response;
+            }
         }catch(Exception $e){
             $this->setErrorMsg(400,$e->getMessage());
-            return $this->response;
-        }
-
-        if (!$record->success()){
-            $this->setErrorMsg(400,$record->getMessages()[0]);
             return $this->response;
         }
         $this->response->setJsonContent([
@@ -144,9 +149,8 @@ class SupplierController extends BaseController{
 
     }
     public function deleteSupplier($id){
-        $PHQL="delete from MyApp\Models\Supplier where id=:id:";
         try{
-            $record=$this->modelsManager->executeQuery($PHQL,["id"=>$id]);
+            $record=$this->supplier_repo->deleteSupplier($id);
             if (!$record->success()){
                 $this->setErrorMsg(400,$record->getMessages()[0]);
                 return $this->response;

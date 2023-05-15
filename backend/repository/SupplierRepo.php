@@ -1,14 +1,13 @@
 <?php
     namespace MyApp\Repository;
     use Phalcon\Di\Injectable;
-    use Phalcon\Di\DiInterface;
 
     class SupplierRepo extends Injectable{
         public function getActiveSuppliers(array $filter){
             $PHQL = "select * from MyApp\Models\Supplier where status='active'";
             $param=[];
             if (array_key_exists('name',$filter)){
-                $PHQL=$PHQL." and name like CONCAT(:name:,'%')";
+                $PHQL=$PHQL." and name like CONCAT(?,'%')";
                 $param["name"]=$filter["name"];
             }
             if (array_key_exists('email',$filter)){
@@ -20,5 +19,17 @@
                 $param["number"]=$filter["number"];
             }
             return $this->modelsManager->executeQuery($PHQL,$param);
+        }
+        public function addSupplier(array $param){
+            $PHQL="insert into MyApp\Models\Supplier(name,email,number) values(:name:,:email:,:number:)";
+            return $this->modelsManager->executeQuery($PHQL,$param);
+        }
+        public function updateSupplier(array $param){
+            $PHQL="update MyApp\Models\Supplier set name=:name:,email=:email:,number=:number:,status=:status: where id=:id:";
+            return $this->modelsManager->executeQuery($PHQL,$param);
+        }
+        public function deleteSupplier($id){
+            $PHQL="delete from MyApp\Models\Supplier where id=:id:";
+            return $this->modelsManager->executeQuery($PHQL,["id"=>$id]);
         }
     }
