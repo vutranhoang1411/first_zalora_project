@@ -42,4 +42,5 @@ export const SupplierAPI = {
     const URL = `${SERVER_PATH}/supplier/${id}`
     return await axios.delete(URL)
   },
+
 }

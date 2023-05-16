@@ -27,8 +27,9 @@ export default function Supplier() {
       editable: false,
       renderCell: (params) => {
         const id = params?.row.id
+        const name = params?.row.name
         return (
-          <Link to={`/suppliers/${id}`}>
+          <Link to={`/suppliers/address?id=${id}&name=${name}`}>
             <button>Go to Address</button>
           </Link>
         )

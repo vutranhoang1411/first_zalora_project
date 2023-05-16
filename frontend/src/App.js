@@ -15,7 +15,7 @@ function App() {
           <Route path="product" element={<DashboardPage />} />
           <Route path="product/:productId" element={<SuppliersOfProduct />} />
           <Route path="suppliers" element={<Supplier />} />
-          <Route path="/suppliers/:articleId" element={<Address />} />
+          <Route path="/suppliers/address" element={<Address />} />
         </Route>
       </Routes>
     </BrowserRouter>
