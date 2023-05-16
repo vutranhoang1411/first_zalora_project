@@ -1,4 +1,4 @@
-import SuppliersDetail from 'components/product/supplier-table'
+import SuppliersDetail from 'components/product-supply'
 import React from 'react'
 
 const SuppliersOfProduct = () => {

@@ -78,3 +78,14 @@ export const ProductDataList = [
     stock: 1290,
   },
 ]
+
+const dataAferMutation = {
+  data: {
+    id: 5,
+    name: 'Sandals',
+    brand: '22Davion',
+    sku: '0270062999769',
+    size: 'M',
+  },
+  status: 'OK',
+}

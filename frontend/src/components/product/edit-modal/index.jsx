@@ -6,69 +6,65 @@ import {
   MenuItem,
   Modal,
   OutlinedInput,
+  Select,
   TextField,
   Typography,
 } from '@mui/material'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from './styles.module.scss'
-import { ParseObjectToValueLabel } from 'components/util/func'
-import { ProductColor, ProductSize } from 'components/util/constant'
-import { ProductAPI } from 'services/api'
-
-const brandList = [
-  {
-    value: 'HM',
-    label: 'HM store',
-  },
-  {
-    value: 'Uniqlo',
-    label: 'Uniqlo Asia',
-  },
-  {
-    value: 'Nike',
-    label: 'Nike Basketball',
-  },
-]
+import { ParseObjectToValueLabel } from 'util/func'
+import { ProductColor, ProductSize } from 'util/constant'
+import { useEditProductMutation } from 'services/createApi'
 
 const sizeList = ParseObjectToValueLabel(ProductSize)
 const colorList = ParseObjectToValueLabel(ProductColor)
 
 const ModalEditProductTable = (props) => {
-  const { productInfo = null, open = false, setClose, setEditProduct } = props
-  const [productNewInfo, setProductNewInfo] = useState(productInfo)
-  const [newProductName, setNewProductName] = useState('')
-  const [newProductSku, setNewProductSku] = useState('')
+  const {
+    productInfo = null,
+    open = false,
+    setClose,
+    refetchAllProducts,
+  } = props
+  const [productNewInfo, setProductNewInfo] = useState({})
+  const [editProduct, { isLoading, data, error }] = useEditProductMutation()
+
   // const nameInputRef = useRef()
   const handleClose = () => {
     setClose()
   }
   const onSubmitChange = () => {
-    const newProduct = {
+    const submitProduct = {
+      ...productInfo,
       ...productNewInfo,
-      name: newProductName.length !== 0 ? newProductName : productInfo.name,
-      sku: newProductSku.length !== 0 ? newProductSku : productInfo.sku,
     }
-    ProductAPI.editProduct(newProduct)
-    setEditProduct(newProduct)
-    console.log('Submit', newProduct)
-    setClose()
-  }
-
-  const inputNewSku = (val) => {
-    setNewProductSku(val)
-  }
-
-  const handleFieldChangeClick = (sizeValueLabel, field) => {
-    for (let productField in productInfo) {
-      if (field === productField) {
-        productInfo[field] = sizeValueLabel.value
-      }
+    console.log(submitProduct)
+    editProduct(submitProduct)
+    if (isLoading) {
+      console.log('is loading... to edit product')
+    } else {
+      console.log('load done... to edit product')
+      setClose()
     }
-    setProductNewInfo(productInfo)
   }
 
-  const onInputNewName = (value) => {
-    setNewProductName(value)
+  useEffect(() => {
+    if (data) {
+      console.log('data after edit product', data)
+      refetchAllProducts()
+    }
+  }, [data])
+
+  const handleFieldChangeClick = (value, field) => {
+    productNewInfo[field] = value
+    console.log(productNewInfo)
+    setProductNewInfo(productNewInfo)
+  }
+
+  const onInputNewValueField = (value, field) => {
+    productNewInfo[field] = value
+    console.log(productNewInfo)
+    setProductNewInfo(productNewInfo)
   }
   return (
     <Modal
@@ -103,75 +99,54 @@ const ModalEditProductTable = (props) => {
               label="Name"
               // error={}
               // ref={nameInputRef}
-              onChange={(event) => onInputNewName(event.target.value)}
+              onChange={(event) =>
+                onInputNewValueField(event.target.value, 'name')
+              }
             />
           </FormControl>
-          <TextField
-            // helperText="Product Name"
-            defaultValue="HM"
-            variant="outlined"
-            // fullWidth
-            select
-            label="Brand"
-          >
-            {brandList.map((option) => (
-              <MenuItem
-                key={option.value}
-                value={option.value}
-                selected={option?.label === productInfo?.brand}
-                onClick={() => handleFieldChangeClick(option, 'brand')}
-              >
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
-          <FormControl>
-            <InputLabel htmlFor="component-outlined">SKU</InputLabel>
+          <FormControl fullWidth>
+            <InputLabel htmlFor="component-outlined">Brand</InputLabel>
             <OutlinedInput
               id="component-outlined"
-              defaultValue={productInfo?.sku}
-              label="SKU"
-              onChange={(e) => inputNewSku(e.target.value)}
+              defaultValue={productInfo?.brand}
+              label="Brand"
+              onChange={(event) =>
+                onInputNewValueField(event.target.value, 'brand')
+              }
             />
           </FormControl>
-          <TextField
-            select
+          <Select
             variant="outlined"
             label="Color"
-            defaultValue={productInfo?.color.toUpperCase()}
+            value={
+              productNewInfo?.color ? productNewInfo?.color : productInfo.color
+            }
+            onChange={(e) => handleFieldChangeClick(e.target.value, 'color')}
           >
             {colorList &&
               colorList.map((option) => (
-                <MenuItem
-                  key={option.value}
-                  value={option.value}
-                  selected={option.value === productInfo?.color}
-                  onClick={() => handleFieldChangeClick(option, 'color')}
-                >
+                <MenuItem key={option.value} value={option.value}>
                   {option.label}
                 </MenuItem>
               ))}
-          </TextField>
-          <FormControl>
-            <TextField
-              select
-              variant="outlined"
-              label="Size"
-              defaultValue={productInfo?.size}
-            >
-              {sizeList &&
-                sizeList.map((option) => (
-                  <MenuItem
-                    key={option.value}
-                    value={option.value}
-                    selected={option?.label === productInfo?.size}
-                    onClick={() => handleFieldChangeClick(option, 'size')}
-                  >
-                    {option.label}
-                  </MenuItem>
-                ))}
-            </TextField>
-          </FormControl>
+          </Select>
+          <Select
+            variant="outlined"
+            label="Size"
+            value={
+              productNewInfo?.size ? productNewInfo?.size : productInfo.size
+            }
+            onChange={(event) =>
+              handleFieldChangeClick(event.target.value, 'size')
+            }
+          >
+            {sizeList &&
+              sizeList.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+          </Select>
         </Box>
         <Box className={styles.submit} sx={{ m: 1, mt: 2, gap: 1 }}>
           <Button

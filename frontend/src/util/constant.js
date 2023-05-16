@@ -30,4 +30,22 @@ export const ProductColor = {
   WHITE: 'WHITE ',
   RED: 'RED ',
   OMBRE: 'OMBRE',
+  SILVER: 'SILVER',
+  GRAY: 'GRAY',
+  PURPLE: 'PURPLE',
+  LIME: 'LIME',
+  TEAL: 'TEAL',
+  OLIVE: 'OLIVE',
+  BLUE: 'BLUE',
+}
+
+export const ProductActionType = {
+  CREATE_PRODUCT: 'CREATE_PRODUCT',
+  EDIT_PRODUCT: 'EDIT_PRODUCT',
+  DELETE_PRODUCT: 'DELETE_PRODUCT',
+}
+
+export const ProductSupplyActionType = {
+  GET_SUPPLIER_BY_PRODUCT_ID: 'GET_SUPPLIER_BY_PRODUCT_ID',
+  CREATE_PRODUCT_SUPPLY: 'CREATE_PRODUCT_SUPPLY',
 }
