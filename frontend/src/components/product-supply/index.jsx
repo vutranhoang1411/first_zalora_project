@@ -1,48 +1,39 @@
 import { DataGrid } from '@mui/x-data-grid'
 import { Box, Button, Container, Paper } from '@mui/material'
-import { ProductDataList } from 'services/dummy-data'
 import { useEffect, useRef, useState } from 'react'
-import ProductTableHead from '../table-head'
-import ModalEditProductTable from '../edit-modal'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink, useParams } from 'react-router-dom'
 import {
-  useDeleteProductMutation,
-  useGetAllProductsQuery,
+  useDeleteSupplierOfProductMutation,
+  useGetSupplierByProductIdQuery,
 } from 'services/createApi'
-import ModalCreateProductForm from 'components/modal'
 import Loading from 'components/loading'
+import ProductTableHead from 'components/product/table-head'
+import ModalNewSupplierForProductModal from './new-form'
 
 // Generate Order Data
 // GridColDef[]
 
-export default function ProductTable() {
+export default function SupplierDetails() {
+  const { productId } = useParams()
   const {
     isLoading: loading,
-    data: productList,
+    data: supplierProductList,
     error,
     refetch,
-  } = useGetAllProductsQuery({
-    skip: true,
-    pollingInterval: 3000,
-    refetchOnMountOrArgChange: true,
-  })
+  } = useGetSupplierByProductIdQuery(productId)
   const tableRef = useRef()
   const [rowSelectionIndex, setRowSelectionIndex] = useState([])
   const [openCreateModal, setOpenCreateModal] = useState(false)
-  const [openEditModal, setOpenEditModal] = useState(false)
-  const [selectedRow, setSelectedRow] = useState(null)
+  const [selectedRow, setSelectedRow] = useState()
   const handleRowSelection = (newSelectedRow) => {
     setRowSelectionIndex(newSelectedRow)
   }
 
-  useEffect(() => {
-    refetch()
-  }, [])
-
   const [
     deleteTrigger,
     { loading: deleteLoading, data: deleteData, error: deleteError },
-  ] = useDeleteProductMutation()
+  ] = useDeleteSupplierOfProductMutation()
+
   const deleteRowHandler = async () => {
     try {
       const payload = await deleteTrigger(rowSelectionIndex[0]).unwrap()
@@ -52,11 +43,6 @@ export default function ProductTable() {
       console.log('>> rejected', err)
     }
     setRowSelectionIndex([])
-  }
-
-  const editModalHandler = (product) => {
-    setSelectedRow(product)
-    setOpenEditModal(true)
   }
 
   useEffect(() => {
@@ -70,45 +56,8 @@ export default function ProductTable() {
   }, [setRowSelectionIndex])
 
   const columns = [
-    { field: 'name', headerName: 'Name', width: 150 },
-    { field: 'brand', headerName: 'Brand', width: 150 },
-    { field: 'sku', headerName: 'SKU', width: 200 },
-    {
-      field: 'size',
-      headerName: 'Size',
-      width: 100,
-    },
-    { field: 'color', headerName: 'Color', width: 100 },
-    { field: 'totalStock', headerName: 'Total Stock', width: 100 },
-    {
-      field: '',
-      headerName: 'Actions',
-      width: 250,
-      // hideSortIcons: true,
-      renderCell: (params) => {
-        const { row: product } = params
-        return (
-          <div>
-            <Button
-              variant="contained"
-              size="small"
-              style={{ marginRight: 10 }}
-              component={RouterLink}
-              to={`${window.location.href}/${product.id}`}
-            >
-              All Suppliers
-            </Button>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => editModalHandler(product)}
-            >
-              Edit
-            </Button>
-          </div>
-        )
-      },
-    },
+    { field: 'suppliername', headerName: 'Supplier Name', width: 200 },
+    { field: 'stock', headerName: 'Supplier Stock', width: 150 },
   ]
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -122,9 +71,11 @@ export default function ProductTable() {
               rowSelected={rowSelectionIndex.length}
               deleteRowHandler={deleteRowHandler}
             />
-            {!loading ? (
+            {supplierProductList?.length === 0 ? (
+              <h1> No Supplier</h1>
+            ) : !loading ? (
               <DataGrid
-                rows={productList}
+                rows={supplierProductList}
                 columns={columns}
                 initialState={{
                   pagination: {
@@ -142,19 +93,12 @@ export default function ProductTable() {
           </div>
         )}
       </Paper>
-      {selectedRow && (
-        <ModalEditProductTable
-          productInfo={selectedRow}
-          // setProductInfo={(info) => setSelectedRow(info)}
-          open={openEditModal}
-          setClose={() => setOpenEditModal(false)}
-          refetchAllProducts={refetch}
-        />
-      )}
-      <ModalCreateProductForm
+
+      <ModalNewSupplierForProductModal
         open={openCreateModal}
+        productId={productId}
         setClose={() => setOpenCreateModal(false)}
-        refetchAllProducts={refetch}
+        refetchAllSuppliers={refetch}
       />
     </Container>
   )

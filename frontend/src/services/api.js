@@ -2,35 +2,21 @@ import axios from 'axios'
 export const ProductAPI = {
   fetchAllProducts: async () => {
     const URL = `${process.env.REACT_APP_BACKEND_URL}/product`
-    try {
-      await axios
-        .get(URL)
-        .then((res) => res)
-        .catch((err) => err)
-    } catch (e) {
-      // >>> client log error
-      console.log(e)
-    }
+    return await axios.get(URL).then((res) => {
+      return res.data
+    })
   },
 
   editProduct: async (body) => {
     const URL = `${process.env.REACT_APP_BACKEND_URL}/product/${body?.id}`
-    try {
-      await axios
-        .post(URL, body)
-        .then((res) => res)
-        .catch((err) => err)
-    } catch (e) {
-      // >>> client log error
-      console.log(e)
-    }
+    return await axios.post(URL, body).then((res) => res.data)
   },
   deleteProduct: async (productId) => {
     const URL = `${process.env.REACT_APP_BACKEND_URL}/product/${productId}`
     try {
-      await axios
+      return await axios
         .delete(URL)
-        .then((res) => res)
+        .then((res) => res.data)
         .catch((err) => err)
     } catch (e) {
       // >>> client log error
@@ -39,26 +25,20 @@ export const ProductAPI = {
   },
   createProduct: async (body) => {
     const URL = `${process.env.REACT_APP_BACKEND_URL}/product`
-    try {
-      await axios
-        .put(URL, body)
-        .then((res) => res)
-        .catch((err) => err)
-    } catch (e) {
-      // >>> client log error
-      console.log(e)
-    }
+    await axios.post(URL, body).then((res) => res.data)
   },
+}
+
+export const ProductSupplyAPI = {
   getSuppliers: async (productId) => {
-    const URL = `${process.env.REACT_APP_BACKEND_URL}/supplier?productId=${productId}`
-    try {
-      await axios
-        .get(URL)
-        .then((res) => res)
-        .catch((err) => err)
-    } catch (e) {
-      // >>> client log error
-      console.log(e)
-    }
+    const URL = `${process.env.REACT_APP_BACKEND_URL}/productsupply/supplier?productId=${productId}`
+    return await axios.get(URL).then((res) => {
+      return res.data
+    })
+  },
+
+  deleteSupplierById: async (id) => {
+    const URL = `${process.env.REACT_APP_BACKEND_URL}/productsupply/${id}`
+    return await axios.delete(URL).then((res) => res.data)
   },
 }

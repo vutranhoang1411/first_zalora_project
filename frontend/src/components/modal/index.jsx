@@ -1,57 +1,182 @@
-import * as React from 'react'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import Modal from '@mui/material/Modal'
+import {
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Modal,
+  OutlinedInput,
+  Select,
+  TextField,
+  Typography,
+} from '@mui/material'
+import React, { useEffect, useState } from 'react'
 import styles from './styles.module.scss'
-import { Divider } from '@mui/material'
+import { ParseObjectToValueLabel } from 'util/func'
+import { ProductColor, ProductSize } from 'util/constant'
+import { useCreateNewProductMutation } from 'services/createApi'
+import ErrorNotification from 'components/notification/error-noti'
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-}
+const sizeList = ParseObjectToValueLabel(ProductSize)
+const colorList = ParseObjectToValueLabel(ProductColor)
 
-export default function ModalInfo(props) {
-  const { setData, info } = props
-  const [open, setOpen] = React.useState(true)
-  const handleOpen = () => setOpen(true)
+const ModalCreateProductForm = (props) => {
+  const { open = false, setClose, refetchAllProducts } = props
+  const [productNewInfo, setProductNewInfo] = useState({
+    size: 'XL',
+    color: ProductColor.GREEN,
+    name: 'A',
+    brand: 'B',
+  })
+  const [createNewProduct, { isLoading, data, error, isError }] =
+    useCreateNewProductMutation()
+  const [createError, setCreateError] = useState(isError)
+
   const handleClose = () => {
-    setData('Close the modal')
-    setOpen(false)
+    setClose()
+  }
+  const onSubmitChange = async () => {
+    const submitProduct = {
+      ...productNewInfo,
+    }
+    console.log(submitProduct)
+
+    createNewProduct(submitProduct)
+      .unwrap()
+      .then((res) => {
+        console.log('promise res', res)
+        // define assign
+        refetchAllProducts()
+        setClose()
+      })
+      .catch((err) => {
+        console.log('promise err', err)
+        setCreateError(err?.data?.error)
+      })
   }
 
+  const handleFieldChangeClick = (value, field) => {
+    productNewInfo[field] = value
+    console.log(productNewInfo)
+    setProductNewInfo(productNewInfo)
+  }
+
+  const onInputNewValueField = (value, field) => {
+    productNewInfo[field] = value
+    console.log(productNewInfo)
+    setProductNewInfo(productNewInfo)
+  }
+
+  const ErrorNotificationRender = () => {
+    return <ErrorNotification error={createError} setError={setCreateError} />
+  }
   return (
-    <div>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      {createError ? (
+        ErrorNotificationRender()
+      ) : (
         <Box className={styles.modal}>
-          {/* sx={style} */}
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Supplier Information
+          <Typography
+            id="modal-modal-title"
+            variant="h4"
+            // component="h2"
+            sx={{ m: 1, mb: 2 }}
+          >
+            Create New Product
           </Typography>
-          <Divider />
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat
-            reprehenderit distinctio sequi incidunt repudiandae deleniti
-            asperiores vel fuga rem ipsam nemo libero earum, dolore id odit,
-            doloribus quidem! Quam, nemo!
-          </Typography>
+          <Box
+            component="form"
+            sx={{
+              '& > :not(style)': { m: 1 },
+            }}
+            noValidate
+            autoComplete="off"
+          >
+            <FormControl fullWidth required>
+              <InputLabel htmlFor="component-outlined">Name</InputLabel>
+              <OutlinedInput
+                id="component-outlined"
+                label="Name"
+                required
+                // error={}
+                // ref={nameInputRef}
+                onChange={(event) =>
+                  onInputNewValueField(event.target.value, 'name')
+                }
+              />
+            </FormControl>
+            <FormControl fullWidth required>
+              <InputLabel htmlFor="component-outlined">Brand</InputLabel>
+              <OutlinedInput
+                id="component-outlined"
+                label="Brand"
+                required
+                onChange={(event) =>
+                  onInputNewValueField(event.target.value, 'brand')
+                }
+              />
+            </FormControl>
+            <Select
+              variant="outlined"
+              label="Color"
+              value={
+                productNewInfo?.color
+                  ? productNewInfo?.color
+                  : colorList[0].value
+              }
+              onChange={(e) => handleFieldChangeClick(e.target.value, 'color')}
+            >
+              {colorList &&
+                colorList.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+            </Select>
+            <Select
+              variant="outlined"
+              label="Size"
+              value={
+                productNewInfo?.size ? productNewInfo?.size : sizeList[0].value
+              }
+              onChange={(event) =>
+                handleFieldChangeClick(event.target.value, 'size')
+              }
+            >
+              {sizeList &&
+                sizeList.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+            </Select>
+          </Box>
+          <Box className={styles.submit} sx={{ m: 1, mt: 2, gap: 1 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ mr: 1 }}
+              onClick={() => onSubmitChange()}
+            >
+              Submit
+            </Button>
+            <Button
+              type="submit"
+              variant="outlined"
+              onClick={() => handleClose()}
+            >
+              Cancel
+            </Button>
+          </Box>
         </Box>
-      </Modal>
-    </div>
+      )}
+    </Modal>
   )
 }
 
-// Caution with modal, you should always have 1 children for modal (MUI Modal)
-// https://stackoverflow.com/questions/56622246/react-material-ui-modal-typeerror-cannot-read-property-hasownproperty-of-unde
+export default ModalCreateProductForm

@@ -11,8 +11,8 @@ import {
 } from '@mui/material'
 import React, { useState } from 'react'
 import styles from './styles.module.scss'
-import { ParseObjectToValueLabel } from 'components/util/func'
-import { ProductColor, ProductSize } from 'components/util/constant'
+import { ParseObjectToValueLabel } from 'util/func'
+import { ProductColor, ProductSize } from 'util/constant'
 import { ProductAPI } from 'services/api'
 
 const labelField = [
@@ -25,10 +25,6 @@ const labelField = [
     field: 'brand',
   },
   {
-    label: 'SKU',
-    field: 'sku',
-  },
-  {
     label: 'Color',
     field: 'color',
   },
@@ -39,16 +35,20 @@ const labelField = [
 ]
 
 const ModalFormNewProduct = (props) => {
-  const { open, setClose, setEditProduct } = props
+  const { open, setClose, productInfo } = props
   const [newProduct, setNewProduct] = useState({})
   const handleClose = () => {
     setClose()
   }
 
   const onSubmitChange = () => {
-    console.log(newProduct)
+    console.log('>> new product ', newProduct)
+    const submit = {
+      ...productInfo,
+      ...newProduct,
+    }
     ProductAPI.createProduct(newProduct)
-    setEditProduct(newProduct)
+    // setEditProduct(newProduct)
     handleClose()
   }
   const onInputNewFieldValue = (value, field) => {
@@ -81,7 +81,7 @@ const ModalFormNewProduct = (props) => {
           autoComplete="off"
         >
           {labelField.map((value) => (
-            <FormControl fullWidth size="small">
+            <FormControl key={value.label} fullWidth size="small">
               <InputLabel htmlFor="component-outlined">
                 {value?.label}
               </InputLabel>
