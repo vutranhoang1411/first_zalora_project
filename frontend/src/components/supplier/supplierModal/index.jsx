@@ -150,7 +150,12 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
           </div>
         )}
         <Box sx={{ mt: 2 }}>
-          <Button variant="contained" color="info" onClick={handleSubmit}>
+          <Button
+            variant="contained"
+            color="info"
+            onClick={handleSubmit}
+            sx={{ mr: 1 }}
+          >
             Save
           </Button>
           <Button variant="contained" color="primary" onClick={handleCancel}>

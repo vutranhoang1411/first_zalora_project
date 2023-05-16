@@ -44,6 +44,7 @@ export default function Supplier() {
       renderCell: (params) => (
         <Box sx={{ margin: 2 }}>
           <Button
+            sx={{ mr: 1 }}
             variant="contained"
             color="primary"
             onClick={() => handleRowEdit(params)}

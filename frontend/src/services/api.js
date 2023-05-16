@@ -28,4 +28,3 @@ export const ProductAPI = {
     await axios.post(URL, body).then((res) => res.data)
   },
 }
-export default api

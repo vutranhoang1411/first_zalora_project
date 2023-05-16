@@ -42,9 +42,6 @@ export const Address = () => {
   const [data, setData] = React.useState([])
   const [toggle, setToggle] = React.useState(false)
 
-  const handleAddRow = () {
-
-  }
   const handleRowDelete = async (id) => {
     try {
       // make API call to delete row
@@ -74,7 +71,6 @@ export const Address = () => {
       <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
         <div className={styles.title}>
           <Title>Supplier Name: {supplierName}</Title>
-          <Button onClick={handleAddRow}>+</Button>
         </div>
         <DataGrid
           rows={data}
