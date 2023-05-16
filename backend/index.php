@@ -54,12 +54,14 @@
         ->put("/","updateSupplier")
         ->delete("/{id:[0-9]+}","deleteSupplier");
 
-$addresses=new MicroCollection();
+    $addresses=new MicroCollection();
     $addresses
         ->setHandler(MyApp\Controllers\AddressController::class,true)
         ->setPrefix("/api/address")
-        ->get("/","getAddress");
-
+        ->get("/","getAddress")
+        ->put("/","updateAddress")
+        ->delete("/{id:[0-9]+}","deleteAddress")
+        ->post("/","newAddress");
     $products = new MicroCollection();
     $products
         ->setHandler(MyApp\Controllers\ProductController::class,True)

@@ -147,9 +147,7 @@ class SupplierController extends BaseController{
         $this->response->setJsonContent([
             "msg"=>"success",
         ]);
-        return $this->response;    
-
-
+        return $this->response;
     }
     public function deleteSupplier($id){
         $this->setHeader();
