@@ -32,6 +32,9 @@
             return true;  
         }
         protected function setHeader () {
-            $this->response->setHeader('Access-Control-Allow-Origin', '*');
+            $this->response->setHeader("Access-Control-Allow-Origin", "*");
+            //$this->response->setHeader("Access-Control-Allow-Credentials", "true");
+            //$this->response->setHeader("Access-Control-Allow-Headers", "Content-Type");
+            //$this->response->setHeader("Access-Control-Allow-Methods", "POST,HEAD,PATCH,OPTIONS,GET,PUT,DELETE");
         }
     }

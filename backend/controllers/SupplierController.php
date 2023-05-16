@@ -45,6 +45,7 @@ class SupplierController extends BaseController{
 
     //write as a transaction
     public function newSupplier(){
+        $this->setHeader();
         $reqPost=$this->request->getJsonRawBody();
         $needField=["name","email","number"];
         if (!$this->checkExistField($needField,$reqPost)){
@@ -109,6 +110,7 @@ class SupplierController extends BaseController{
     }
 
     public function updateSupplier(){
+        $this->setHeader();
         $reqPost=$this->request->getJsonRawBody();
         //validate input
         $needField=["name","email","number","status","id"];
@@ -145,11 +147,10 @@ class SupplierController extends BaseController{
         $this->response->setJsonContent([
             "msg"=>"success",
         ]);
-        return $this->response;    
-
-
+        return $this->response;
     }
     public function deleteSupplier($id){
+        $this->setHeader();
         try{
             $record=$this->supplier_repo->deleteSupplier($id);
             if (!$record->success()){

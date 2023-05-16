@@ -20,6 +20,7 @@ class ProductSupplyController extends BaseController{
     	return $this->response;
   	}
   	public function newProductSupply(){
+        $this->setHeader();
   	  	$reqPost=$this->request->getJsonRawBody();
   	  	$needField=["productid","supplierid","stock"];
   	  	if (!$this->checkExistField($needField,$reqPost)){

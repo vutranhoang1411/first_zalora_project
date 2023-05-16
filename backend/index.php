@@ -53,12 +53,15 @@
         ->post("/","newSupplier")
         ->put("/","updateSupplier")
         ->delete("/{id:[0-9]+}","deleteSupplier");
+
     $addresses=new MicroCollection();
     $addresses
         ->setHandler(MyApp\Controllers\AddressController::class,true)
         ->setPrefix("/api/address")
-        ->get("/","getAddress");
-
+        ->get("/","getAddress")
+        ->put("/","updateAddress")
+        ->delete("/{id:[0-9]+}","deleteAddress")
+        ->post("/","newAddress");
     $products = new MicroCollection();
     $products
         ->setHandler(MyApp\Controllers\ProductController::class,True)
@@ -66,7 +69,7 @@
         ->get('/', 'index')
         ->post("/","post")
         ->delete("/{id:[0-g9]+}",'delete')
-        ->post("/{id:[0-9]+}",'edit');
+        ->put("/",'edit');
     $productSupply = new MicroCollection();
     $productSupply
         -> setHandler(MyApp\Controllers\ProductSupplyController::class,true)
@@ -82,6 +85,7 @@
     $app->mount($products);
     $app->mount($productSupply);
     $app->notFound(function(){
+
         echo "Page not found";
     });
     $app->handle($_SERVER["REQUEST_URI"]);

@@ -31,8 +31,8 @@ class ProductController extends BaseController
             }
 
             if (isset($reqQuery['brand'])) {
-                $conditions[] = 'brand = :brand:';
-                $bindParams['brand'] = $reqQuery['brand'];
+                $conditions[] = 'brand LIKE :brand:';
+                $bindParams['brand'] = '%'.$reqQuery['brand'].'%';
             }
 
             if (isset($reqQuery['name'])) {
@@ -44,10 +44,33 @@ class ProductController extends BaseController
                 'conditions' => implode(' AND ', $conditions),
                 'bind' => $bindParams,
             ]);
-            $this->setHeader();
+
+            $totalStock = Models\ProductSupply::sum([
+                    'column' => 'stock',
+                    'group'  => 'productid',
+                ]
+            );
+
+            $productArray = $results->toArray();
+            $totalStockArray = $totalStock->toArray();
+
+            for ($i = 0; $i < count($productArray); $i++) {
+                $found = false;
+                for ($j = 0; $j < count($totalStockArray); $j++) {
+                    if ($productArray[$i]['id'] == $totalStockArray[$j]['productid']) {
+                        $productArray[$i]['totalStock'] = $totalStockArray[$j]['sumatory'];
+                        $found = true;
+                        break;
+                    }
+                }
+                if (!$found) {
+                    $productArray[$i]['totalStock'] = 0;
+                }
+            }
+
             $this->response->setStatusCode(200);
             return $this->response->setJsonContent(
-                $results
+                $productArray
             );
         } catch (Exception $e) {
             $this->setErrorMsg(400,$e->getMessage());
@@ -66,7 +89,6 @@ class ProductController extends BaseController
 
             $product = $this->getDatafromRequest($data);
             // Store and check for errors
-
             $result = $product->save();
 
             if ($result === true) {
@@ -77,7 +99,8 @@ class ProductController extends BaseController
                     ]
                 );
             } else {
-                $this->setErrorMsg('409', "Can't create this item");
+                $messageError = $this->createErrorMessage($product);
+                $this->setErrorMsg('409', $messageError);
             }
             return $this->response;
         } catch(Exception $e){
@@ -86,13 +109,19 @@ class ProductController extends BaseController
         }
     }
     private function checkattr($data,$put=false) {
-        $attr = ['name', 'brand', 'sku', 'size','color'];
+        $attr = ['name', 'brand', 'size','color'];
         foreach ($attr as $item) {
             if (!property_exists($data, $item)) {
                 return false;
             }
         }
         if ($put) {
+            if (!property_exists($data, 'id')) {
+                return false;
+            }
+            if(!is_int($data->id)) {
+                return false;
+            }
             if (!property_exists($data, 'status')) {
                 return false;
             }
@@ -116,13 +145,22 @@ class ProductController extends BaseController
                     ]
                 );
             } else {
-                $this->setErrorMsg('409', "Can't delete this item");
+                $messageError = $this->createErrorMessage($product);
+                $this->setErrorMsg('409', $messageError);
             }
             return $this->response;
         } catch(Exception $e){
             $this->setErrorMsg(400,$e->getMessage());
             return $this->response;
         }
+    }
+    private function createErrorMessage($product) {
+        $messageString = "";
+        $messages = $product->getMessages();
+        foreach ($messages as $message) {
+            $messageString = $messageString.$message."\n";
+        }
+        return $messageString;
     }
     private function getDatafromRequest($data, $id =0) {
         if (($id) == 0) {
@@ -133,45 +171,46 @@ class ProductController extends BaseController
                 return null;
             }
         }
+
         $product->name  = $data->name;
         $product->brand = $data->brand;
-        $product->sku = $data->sku;
         $product->size = $data->size;
         $product->color = $data->color;
 
         if ($id ==0) {
             $product->status = 'active';
-            $product->total_stock = 0;
         } else {
             $product->status = $data->status;
         }
         return $product;
     }
-    public function edit($id) {
+    public function edit()
+    {
         $this->setHeader();
         try {
             $data = $this->request->getJsonRawBody();
-            if (!$this->checkattr($data,true)) {
+            if (!$this->checkattr($data, true)) {
                 $this->setErrorMsg('409', "Data validation Failed");
                 return $this->response;
             }
 
-            $product = $this->getDatafromRequest($data,$id);
+            $product = $this->getDatafromRequest($data, $data->id);
             $result = $product->save();
 
             if ($result === true) {
                 $this->response->setJsonContent(
                     [
                         'status' => 'OK',
-                        'data'   => $product,
+                        'data' => $product,
                     ]
                 );
             } else {
-                $this->setErrorMsg('409', "Can't edit this item");
+                $messageError = $this->createErrorMessage($product);
+                $this->setErrorMsg('409', $messageError);
             }
             return $this->response;
-        } catch(Exception $e){
-            $this->setErrorMsg(400,$e->getMessage());
+        } catch (Exception $e) {
+            $this->setErrorMsg(400, $e->getMessage());
             return $this->response;
         }
     }

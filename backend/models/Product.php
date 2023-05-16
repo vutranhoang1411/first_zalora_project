@@ -4,7 +4,7 @@ namespace MyApp\Models;
 use Phalcon\Mvc\Model;
 use Phalcon\Filter\Validation;
 use Phalcon\Filter\Validation\Validator\InclusionIn;
-use Phalcon\Filter\Validation\Validator\GreaterThan;
+use Phalcon\Filter\Validation\Validator\Uniqueness;
 
 class Product extends Model
 {
@@ -41,10 +41,32 @@ class Product extends Model
             ]
         );
     }
+    public function beforeValidationOnCreate()
+    {
+        $this->sku =$this->generateNewSku($this->name, $this->brand, $this->size, $this->color);
+    }
+    public function beforeValidationOnUpdate()
+    {
+        $this->sku = $this->generateNewSku($this->name, $this->brand, $this->size, $this->color);
+    }
 
+    protected function generateNewSku($product_name, $brand_name, $size, $color) {
+        $string = sprintf("%d%d%s%s", $product_name, $brand_name, $size, $color);
+        $hash = md5($string);
+        return substr($hash, 0, 20);
+    }
     public function validation()
     {
         $validator = new Validation();
+
+        $validator->add(
+            'sku',
+            new Uniqueness(
+                [
+                    'message' => 'The SKU must be unique. That means this combination name-brand-size-color is exist in our database',
+                ]
+            )
+        );
 
         $validator->add(
             "status",
