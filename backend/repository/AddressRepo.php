@@ -4,7 +4,7 @@
 
     class AddressRepo extends Injectable{
         public function getAddress(array $filter){
-            $PHQL="select * from MyApp\Models\Address";
+            $PHQL="select * from MyApp\Models\Address ";
             $param=[];
             if (array_key_exists("supplierid",$filter)){
                 $PHQL=$PHQL." where supplierid=:supplierid:";

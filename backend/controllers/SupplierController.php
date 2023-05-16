@@ -76,11 +76,11 @@ class SupplierController extends BaseController{
             //insert address
             foreach ($reqPost->address as $addr){
                 if (!property_exists($addr,"addr")){
-                    $this->setErrorMsg("400","missing address name in inserted address");
+                    $this->setErrorMsg(400,"missing address name in inserted address");
                     return $this->response;
                 }
                 if (!property_exists($addr,"type")){
-                    $this->setErrorMsg("400","missing address type in inserted address");
+                    $this->setErrorMsg(400,"missing address type in inserted address");
                     return $this->response;
                 }
                 $record=$this->address_repo->addAddress([

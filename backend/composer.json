@@ -2,7 +2,11 @@
     "name": "hoangdeptrai/html",
     "autoload": {
         "psr-4": {
-            "Test\\":"test/"
+            "Test\\":"test/",
+            "MyApp\\Models\\":"models/",
+            "MyApp\\Controllers\\":"controllers/",
+            "MyApp\\Repository\\":"repository/",
+            "MyApp\\Util\\":"util/"
         }
     },
     "authors": [
