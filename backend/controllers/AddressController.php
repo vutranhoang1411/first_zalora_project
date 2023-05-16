@@ -79,7 +79,7 @@
                      $param[$field]=$reqPost->{$field};
                  }
                  $record=$this->address_repo->addAddress($param);
-                 if (!$record.success()) {
+                 if (!$record->success()) {
                      $this->setErrorMsg(400,$record->getMessages()[0]);
                      return $this->response;
                  }
