@@ -118,7 +118,7 @@ class SupplierController extends BaseController{
             return $this->response;
         }
         if (!filter_var($reqPost->email, FILTER_VALIDATE_EMAIL)){
-            $this->setErrorMsg(400,"invalid email");
+            $this->setErrorMsg(400,"invalid email {$reqPost->email}");
             return $this->response;
         }
         if ($reqPost->status!=="active"&&$reqPost->status!=="inactive"){
@@ -147,6 +147,7 @@ class SupplierController extends BaseController{
         $this->response->setJsonContent([
             "msg"=>"success",
         ]);
+        $this->response->setStatusCode(200);
         return $this->response;
     }
     public function deleteSupplier($id){

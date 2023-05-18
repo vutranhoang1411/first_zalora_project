@@ -22,7 +22,7 @@ class Util{
         return $res;
     }
     public static function randomEmail(int $len):string{
-        return Util::randomName($len)."gmail.com";
+        return Util::randomName($len)."@gmail.com";
     }
     public static function randomNumber(int $min, int $max){
         return rand($min,$max);

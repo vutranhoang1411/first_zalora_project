@@ -11,9 +11,9 @@
         protected ProductSupRepo $productsup_repo;
         protected AddressRepo $address_repo;
         public function onConstruct(){
-            $this->supplier_repo=new SupplierRepo();
-            $this->productsup_repo=new ProductSupRepo();
-            $this->address_repo=new AddressRepo();
+            $this->supplier_repo=$this->di->get('supplier_repo');
+            $this->productsup_repo=$this->di->get('productsup_repo');
+            $this->address_repo=$this->di->get('address_repo');
         }
         protected function setErrorMsg(int $code,string $msg){
             $this->response->setStatusCode($code);
