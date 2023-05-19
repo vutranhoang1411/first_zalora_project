@@ -15,7 +15,7 @@ class SupplierController extends BaseController{
             $suppliers=$this->supplier_repo->getActiveSuppliers($reqQuery);
             //map to map stock to appropriate supplier
             $m_map=[];
-            foreach ($suppliers as $supplier){
+            foreach ($suppliers->getItems() as $supplier){
                 $m_map[$supplier->id]=(array)$supplier;
                 $m_map[$supplier->id]["total_stock"]=0;
             }
@@ -35,7 +35,11 @@ class SupplierController extends BaseController{
             foreach ($m_map as $key=>$val){
                 $res[]=(object)$val;
             }
-            $this->response->setJsonContent($res);
+
+            $this->response->setJsonContent([
+                "items"=>$res,
+                "total_items"=>$suppliers->getTotalItems(),
+            ]);
             return $this->response;
         }catch (Exception $e){
             $this->setErrorMsg(400,$e->getMessage());
@@ -47,6 +51,8 @@ class SupplierController extends BaseController{
     public function newSupplier(){
         $this->setHeader();
         $reqPost=$this->request->getJsonRawBody();
+
+        //validate supplier info
         $needField=["name","email","number"];
         if (!$this->checkExistField($needField,$reqPost)){
             return $this->response;
@@ -55,15 +61,31 @@ class SupplierController extends BaseController{
             $this->setErrorMsg(400,"invalid email");
             return $this->response;
         }
+        $supplierParam=[];
+        foreach ($needField as $field){
+            $supplierParam[$field]=$reqPost->{$field};
+        }
+        
+        //validate address
+        $addresses=[];
+        if (property_exists($reqPost,'address')){
+            $addresses=$reqPost->address;
+        }
+        foreach ($addresses as $addr){
+            if (!property_exists($addr,"addr")){
+                $this->setErrorMsg(400,"missing address name in inserted address");
+                return $this->response;
+            }
+            if (!property_exists($addr,"type")){
+                $this->setErrorMsg(400,"missing address type in inserted address");
+                return $this->response;
+            }
+        }
         try{
             $this->db->begin();
-            
-            $param=[];
-            foreach ($needField as $field){
-                $param[$field]=$reqPost->{$field};
-            }
+        
             //insert supplier
-            $record=$this->supplier_repo->addSupplier($param);
+            $record=$this->supplier_repo->addSupplier($supplierParam);
 
             if (!$record->success()){
                 $this->db->rollback();
@@ -75,15 +97,7 @@ class SupplierController extends BaseController{
             $supplierid=$this->db->query("select last_insert_id() as supplier_id")->fetch()["supplier_id"];
 
             //insert address
-            foreach ($reqPost->address as $addr){
-                if (!property_exists($addr,"addr")){
-                    $this->setErrorMsg(400,"missing address name in inserted address");
-                    return $this->response;
-                }
-                if (!property_exists($addr,"type")){
-                    $this->setErrorMsg(400,"missing address type in inserted address");
-                    return $this->response;
-                }
+            foreach ($addresses as $addr){      
                 $record=$this->address_repo->addAddress([
                     "addr"=>$addr->addr,
                     "type"=>$addr->type,
@@ -118,7 +132,7 @@ class SupplierController extends BaseController{
             return $this->response;
         }
         if (!filter_var($reqPost->email, FILTER_VALIDATE_EMAIL)){
-            $this->setErrorMsg(400,"invalid email {$reqPost->email}");
+            $this->setErrorMsg(400,"invalid email");
             return $this->response;
         }
         if ($reqPost->status!=="active"&&$reqPost->status!=="inactive"){
@@ -127,6 +141,7 @@ class SupplierController extends BaseController{
         }
         if (!is_numeric($reqPost->id)){
             $this->setErrorMsg(400,"invalid id");
+            return $this->response;
         }
         $param=[];
         foreach ($needField as $field){

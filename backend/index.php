@@ -1,10 +1,7 @@
 <?php
     require __DIR__ . '/vendor/autoload.php';
     use Phalcon\Autoload\Loader as PLoader;
-    use Phalcon\Mvc\Micro\Collection as MicroCollection;
-    use Phalcon\Di\FactoryDefault;
-    use Phalcon\Db\Adapter\Pdo\Mysql;
-    use josegonzalez\Dotenv\Loader as ConfLoader;
+    use Phalcon\Mvc\Micro\Collection as MicroCollection;    
     use Phalcon\Mvc\Micro;
 
 
@@ -15,35 +12,13 @@
             'MyApp\Repository'=>'repository',
             'MyApp\Models' => 'models',
             'MyApp\Controllers' => 'controllers',
+            'MyApp\DI'=>'di',
         ]
     );
 
     $loader->register();
     //Load DI container
-    $DIcontainer = new FactoryDefault();
-    $DIcontainer->set(
-        'app_conf',
-        function (){
-            return (new ConfLoader('.env'))->parse()->toArray();
-        }
-    );
-    $DIcontainer->set(
-        'db',
-        function (){
-            $config=$this->get('app_conf');
-            return new Mysql(
-                [
-                    "host"=>$config["DB_ADDRESS"],
-                    "dbname"=>$config["DB_NAME"],
-                    "port"=>$config["DB_PORT"],
-                    "username"=> $config["DB_USER"],
-                    "password"=>$config["DB_PASSWORD"]
-                ]
-            );
-        }
-    );
-
-    
+    $MyDI=MyApp\DI\MyDI::getMyDI();
     //router object;
     $suppliers=new MicroCollection();
     $suppliers
@@ -78,7 +53,7 @@
         -> delete("/{id:[0-9]+}", "deleteProductSupply")
         -> post("/","newProductSupply");
 
-    $app=new Micro($DIcontainer);
+    $app=new Micro($MyDI);
 
     $app->mount($suppliers);
     $app->mount($addresses);

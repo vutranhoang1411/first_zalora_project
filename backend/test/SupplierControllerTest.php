@@ -16,8 +16,6 @@
         {
             parent::setUp();
             $DI=new DI\FactoryDefault();
-
-
             //mock the repository'
             $statusMock=$this->getMockBuilder(Status::class)->setConstructorArgs([true])->getMock();
             $statusMock->expects($this->any())->method('success')->willReturn(true);
@@ -35,7 +33,45 @@
         }
         public function testUpdateSupplier(){
             $tcs=[
-                [
+                [//invalid email
+                    "request"=>"{
+                        \"name\":\"".Util::randomName(10)."\",
+                        \"email\":\"".Util::randomName(10)."\",
+                        \"number\":\"".Util::randomPhoneNumber(10)."\",
+                        \"status\":\"active\",
+                        \"id\":\"".Util::randomNumber(1,15)."\"
+                    }",
+                    "response"=>[
+                        "code"=>400,
+                        "body"=>"{\"error\":\"invalid email\"}"
+                    ]
+                ],
+                [///invalid id
+                    "request"=>"{
+                        \"name\":\"".Util::randomName(10)."\",
+                        \"email\":\"".Util::randomEmail(10)."\",
+                        \"number\":\"".Util::randomPhoneNumber(10)."\",
+                        \"status\":\"active\",
+                        \"id\":\""."thisIsReallyInvalid"."\"
+                    }",
+                    "response"=>[
+                        "code"=>400,
+                        "body"=>"{\"error\":\"invalid id\"}"
+                    ]
+                ],
+                [///missing field input
+                    "request"=>"{
+                        \"name\":\"".Util::randomName(10)."\",
+                        \"email\":\"".Util::randomEmail(10)."\",
+                        \"status\":\"active\",
+                        \"id\":\""."thisIsReallyInvalid"."\"
+                    }",
+                    "response"=>[
+                        "code"=>400,
+                        "body"=>"{\"error\":\"missing field number\"}"
+                    ]
+                ],
+                [//valid request body
                     "request" => "{
                         \"name\":\"".Util::randomName(10)."\",
                         \"email\":\"".Util::randomEmail(10)."\",
@@ -45,20 +81,26 @@
                     }",
                     "response" => [
                         "code"=>200,
-                        "body"=>""
+                        "body"=>"{\"msg\":\"success\"}"
                     ]
-                ],
+                ]
             ];
-            $controller=new SupplierController();
-            foreach ($tcs as $tc){
+            
+            foreach ($tcs as $tc){       
+                //set new request service for each testcase     
                 $DI=DI\Di::getDefault();
                 $requestMock=$this->getMockBuilder(Request::class)->getMock();
                 $requestMock->expects($this->any())->method("getJsonRawBody")->willReturn(json_decode($tc["request"]));
+                $DI->remove('request');
                 $DI->set('request',$requestMock);
+
+                //new controller since the old one will use the old DI
+                $controller=new SupplierController(); 
+
+                //testing part
                 $res=$controller->updateSupplier();
-                var_dump($res->getContent());
                 $this->assertEquals($tc["response"]["code"],$res->getStatusCode());
-                
+                $this->assertEquals($tc["response"]["body"],$res->getContent());
             }
         }
         

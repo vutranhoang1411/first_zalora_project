@@ -1,15 +1,3 @@
-DROP TABLE IF EXISTS `supplier`;
-
-CREATE TABLE `supplier` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `email` varchar(40) NOT NULL unique,
-  `number` varchar(20) NOT NULL,
-  `total_stock` int(11) NOT NULL DEFAULT 0,
-  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 INSERT INTO `supplier` (`id`, `name`, `email`, `number`, `status`) VALUES (1, 'Dr. Mariana Walker DVM', 'witting.loyce@example.com', '05475910818', 'inactive');
 INSERT INTO `supplier` (`id`, `name`, `email`, `number`, `status`) VALUES (2, 'Eveline Okuneva', 'johann73@example.net', '576.689.8709', 'inactive');
 INSERT INTO `supplier` (`id`, `name`, `email`, `number`, `status`) VALUES (3, 'Rosie Jenkins', 'dolly99@example.com', '224-628-1387', 'inactive');
@@ -32,20 +20,6 @@ INSERT INTO `supplier` (`id`, `name`, `email`, `number`, `status`) VALUES (19, '
 INSERT INTO `supplier` (`id`, `name`, `email`, `number`, `status`) VALUES (20, 'Joaquin Monahan', 'deanna21@example.net', '637.586.8111', 'inactive');
 
 
-DROP TABLE IF EXISTS `product`;
-
-CREATE TABLE `product` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `brand` varchar(100) NOT NULL,
-  `sku` varchar(20) NOT NULL,
-  `size` varchar(5) NOT NULL,
-  `color` varchar(20) NOT NULL,
-  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
-  `total_stock` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 INSERT INTO `product` (`id`, `name`, `brand`, `sku`, `size`, `color`, `status`) VALUES (1, 'shoe', 'Kaley', '5617715849746', '3', 'silver', 'inactive');
 INSERT INTO `product` (`id`, `name`, `brand`, `sku`, `size`, `color`, `status`) VALUES (2, 'shirt', 'Dameon', '6035200183646', '9', 'gray', 'inactive');
 INSERT INTO `product` (`id`, `name`, `brand`, `sku`, `size`, `color`, `status`) VALUES (3, 'shoe', 'Vinnie', '0821220275999', '7', 'silver', 'active');
@@ -67,21 +41,6 @@ INSERT INTO `product` (`id`, `name`, `brand`, `sku`, `size`, `color`, `status`) 
 INSERT INTO `product` (`id`, `name`, `brand`, `sku`, `size`, `color`, `status`) VALUES (19, 'shirt', 'Aiden', '0651018851827', '1', 'yellow', 'inactive');
 INSERT INTO `product` (`id`, `name`, `brand`, `sku`, `size`, `color`, `status`) VALUES (20, 'shoe', 'Jerrold', '0527434536481', '8', 'green', 'inactive');
 
-
-
-
-DROP TABLE IF EXISTS `address`;
-
-CREATE TABLE `address` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `addr` varchar(100) NOT NULL,
-  `type` enum('office','warehouse','headquater') NOT NULL,
-  `supplierid` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `supplierid` (`supplierid`),
-  CONSTRAINT `address_ibfk_1` FOREIGN KEY (`supplierid`) REFERENCES `supplier` (`id`) on delete cascade
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 INSERT INTO `address` (`addr`, `type`, `supplierid`) VALUES ('3943 Crist Ramp Suite 868', 'office', 1);
 INSERT INTO `address` (`addr`, `type`, `supplierid`) VALUES ('074 Myrtle Viaduct', 'office', 2);
 INSERT INTO `address` (`addr`, `type`, `supplierid`) VALUES ('70850 Delbert Stravenue Suite 536', 'office', 3);
@@ -102,21 +61,6 @@ INSERT INTO `address` (`addr`, `type`, `supplierid`) VALUES ( '343 Olson Plaza A
 INSERT INTO `address` (`addr`, `type`, `supplierid`) VALUES ( '47664 Borer Grove Suite 571', 'office', 18);
 INSERT INTO `address` (`addr`, `type`, `supplierid`) VALUES ( '3922 Lavina Valley', 'office', 19);
 INSERT INTO `address` (`addr`, `type`, `supplierid`) VALUES ( '38613 Lucio Well', 'office', 20);
-
-
-DROP TABLE IF EXISTS `productsupply`;
-
-CREATE TABLE `productsupply` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `productid` int(11) NOT NULL,
-  `supplierid` int(11) NOT NULL,
-  `stock` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  KEY `productid` (`productid`),
-  KEY `supplierid` (`supplierid`),
-  CONSTRAINT `productsupply_ibfk_1` FOREIGN KEY (`productid`) REFERENCES `product` (`id`) on delete cascade,
-  CONSTRAINT `productsupply_ibfk_2` FOREIGN KEY (`supplierid`) REFERENCES `supplier` (`id`) on delete cascade
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `productsupply` (`id`, `productid`, `supplierid`, `stock`) VALUES (1, 17, 11, 10);
 INSERT INTO `productsupply` (`id`, `productid`, `supplierid`, `stock`) VALUES (2, 3, 20, 12);

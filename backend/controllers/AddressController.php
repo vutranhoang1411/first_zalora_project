@@ -61,38 +61,37 @@
         }
 
 
-         public function newAddress(){
+        public function newAddress(){
              try{
-                 $reqPost=$this->request->getJsonRawBody();
-                 //validate input
-                 $needField=["addr","type","supplierid"];
-                 if (!$this->checkExistField($needField)){
-                     return $this->response;
-                 }
-                 if (!is_numeric($reqPost["supplierid"])){
-                     $this->setErrorMsg(400,"invalid supplier id");
-                     return $this->response;
-                 }
+                $reqPost=$this->request->getJsonRawBody();
+                //validate input
+                $needField=["addr","type","supplierid"];
+                if (!$this->checkExistField($needField)){
+                    return $this->response;
+                }
+                if (!is_numeric($reqPost->supplierid)){
+                    $this->setErrorMsg(400,"invalid supplier id");
+                    return $this->response;
+                }
+                $param=[];
+                foreach ($needField as $field){
+                    $param[$field]=$reqPost->{$field};
+                }
+                $record=$this->address_repo->addAddress($param);
+                if (!$record->success()) {
+                    $this->setErrorMsg(400,$record->getMessages()[0]);
+                    return $this->response;
+                }
+                $this->response->setJsonContent([
+                    "msg"=>"success"
+                ]);
+                return $this->response;
 
-                 $param=[];
-                 foreach ($needField as $field){
-                     $param[$field]=$reqPost->{$field};
-                 }
-                 $record=$this->address_repo->addAddress($param);
-                 if (!$record->success()) {
-                     $this->setErrorMsg(400,$record->getMessages()[0]);
-                     return $this->response;
-                 }
-                 $this->response->setJsonContent([
-                     "msg"=>"success"
-                 ]);
-                 return $this->response;
-
-             }catch(Exception $e){
-                 $this->setErrorMsg(400,$e->getMessage());
-                 return $this->response;
-             }
-         }
+            }catch(Exception $e){
+                $this->setErrorMsg(400,$e->getMessage());
+                return $this->response;
+            }
+        }
         // public function updateAddress(){
         //     try{
         //         $reqPost=$this->request->getPost();
