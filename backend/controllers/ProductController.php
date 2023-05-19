@@ -5,13 +5,15 @@ use Phalcon\Http\Response;
 use Phalcon\Mvc\Controller;
 use MyApp\Models as Models;
 use Exception;
+use Phalcon\Paginator\Adapter\Model as PaginateModel;
+
 
 /**
  * @property Response $response
  */
 class ProductController extends BaseController
 {
-    public function index()
+    public function getProductsList()
     {
         $this->setHeader();
         try {
@@ -19,6 +21,8 @@ class ProductController extends BaseController
 
             $conditions = [];
             $bindParams = [];
+            $limit = 5;
+            $page = 1;
 
             if (isset($reqQuery['color'])) {
                 $conditions[] = 'color = :color:';
@@ -40,10 +44,28 @@ class ProductController extends BaseController
                 $bindParams['name'] = '%'.$reqQuery['name'].'%';
             }
 
-            $results = Models\Product::find([
-                'conditions' => implode(' AND ', $conditions),
-                'bind' => $bindParams,
-            ]);
+            if (isset($reqQuery['limit'])) {
+                $limit = $reqQuery['limit'];
+            }
+
+            if (isset($reqQuery['page'])) {
+                $page = $reqQuery['page'];
+            }
+
+            $paginator = new PaginateModel(
+                [
+                    "model" => Models\Product::class,
+                    "parameters" => [
+                        'conditions' => implode(' AND ', $conditions),
+                        'bind' => $bindParams,
+                        "order" => "id"
+                    ],
+                    "limit" => $limit,
+                    "page"  => $page,
+                ]
+            );
+
+            $results = $paginator->paginate();
 
             $totalStock = Models\ProductSupply::sum([
                     'column' => 'stock',
@@ -51,43 +73,54 @@ class ProductController extends BaseController
                 ]
             );
 
-            $productArray = $results->toArray();
+            $items = $results->getItems()->toArray();
             $totalStockArray = $totalStock->toArray();
 
-            for ($i = 0; $i < count($productArray); $i++) {
+            foreach ($items as &$item) {
                 $found = false;
                 for ($j = 0; $j < count($totalStockArray); $j++) {
-                    if ($productArray[$i]['id'] == $totalStockArray[$j]['productid']) {
-                        $productArray[$i]['totalStock'] = $totalStockArray[$j]['sumatory'];
+                    if ($item['id'] == $totalStockArray[$j]['productid']) {
+                        $item['totalStock'] = $totalStockArray[$j]['sumatory'];
                         $found = true;
                         break;
                     }
                 }
                 if (!$found) {
-                    $productArray[$i]['totalStock'] = 0;
+                    $item['totalStock'] = 0;
                 }
             }
 
             $this->response->setStatusCode(200);
+            $resultsArray = [];
+            $resultsArray['items']=$items;
+            $resultsArray['total_items']= $results->getTotalItems();
             return $this->response->setJsonContent(
-                $productArray
+                $resultsArray
             );
         } catch (Exception $e) {
             $this->setErrorMsg(400,$e->getMessage());
             return $this->response;
         }
     }
-    public function post()
+    public function addProduct()
     {
         $this->setHeader();
         try {
             $data = $this->request->getJsonRawBody();
-            if (!$this->checkattr($data)) {
+            if (!$this->checkRequestData($data)) {
                 $this->setErrorMsg('409', "Data validation Failed");
                 return $this->response;
             }
 
-            $product = $this->getDatafromRequest($data);
+            $product = new Models\Product();
+            $product->assign(get_object_vars($data),[
+                    'name',
+                    'brand',
+                    'size',
+                    'color',
+                ]
+            );
+            $product->status = 'active';
             // Store and check for errors
             $result = $product->save();
 
@@ -108,14 +141,22 @@ class ProductController extends BaseController
             return $this->response;
         }
     }
-    private function checkattr($data,$put=false) {
+    private function checkRequestData($data, $edit=false) {
         $attr = ['name', 'brand', 'size','color'];
+        $color = ['Black', 'White', 'Blue', 'Red'];
+        $size = ['XXL', 'XL', 'L'];
         foreach ($attr as $item) {
             if (!property_exists($data, $item)) {
                 return false;
             }
         }
-        if ($put) {
+        $matchingColor = array_search($data->color, $color);
+        $matchingSize = array_search($data->size, $size);
+        if (($matchingColor === false) or ($matchingSize === false) or !$data->name or !$data->brand) {
+            return false;
+        }
+
+        if ($edit) {
             if (!property_exists($data, 'id')) {
                 return false;
             }
@@ -128,7 +169,7 @@ class ProductController extends BaseController
         }
         return true;
     }
-    public function delete($id) {
+    public function deleteProduct($id) {
         $this->setHeader();
         try {
             $product = Models\Product::findFirst($id);
@@ -154,54 +195,36 @@ class ProductController extends BaseController
             return $this->response;
         }
     }
-    private function createErrorMessage($product) {
-        $messageString = "";
-        $messages = $product->getMessages();
-        foreach ($messages as $message) {
-            $messageString = $messageString.$message."\n";
-        }
-        return $messageString;
-    }
-    private function getDatafromRequest($data, $id =0) {
-        if (($id) == 0) {
-            $product = new Models\Product();
-        }  else {
-            $product = Models\Product::findFirst($id);
-            if (!$product) {
-                return null;
-            }
-        }
-
-        $product->name  = $data->name;
-        $product->brand = $data->brand;
-        $product->size = $data->size;
-        $product->color = $data->color;
-
-        if ($id ==0) {
-            $product->status = 'active';
-        } else {
-            $product->status = $data->status;
-        }
-        return $product;
-    }
-    public function edit()
+    public function editProduct()
     {
         $this->setHeader();
         try {
             $data = $this->request->getJsonRawBody();
-            if (!$this->checkattr($data, true)) {
+            if (!$this->checkRequestData($data, true)) {
                 $this->setErrorMsg('409', "Data validation Failed");
                 return $this->response;
             }
 
-            $product = $this->getDatafromRequest($data, $data->id);
+            $product = Models\Product::findFirst($data->id);
+            if (!$product) {
+                $this->setErrorMsg('409', "Can't find the edited item");
+                return $this->response;
+            }
+            $product->assign(get_object_vars($data),[
+                    'name',
+                    'brand',
+                    'size',
+                    'color',
+                    'status',
+                ]
+            );
+
             $result = $product->save();
 
             if ($result === true) {
                 $this->response->setJsonContent(
                     [
-                        'status' => 'OK',
-                        'data' => $product,
+                        $product
                     ]
                 );
             } else {

@@ -37,4 +37,12 @@
             //$this->response->setHeader("Access-Control-Allow-Headers", "Content-Type");
             //$this->response->setHeader("Access-Control-Allow-Methods", "POST,HEAD,PATCH,OPTIONS,GET,PUT,DELETE");
         }
+        protected function createErrorMessage($modelInstance) {
+            $messageString = "";
+            $messages = $modelInstance->getMessages();
+            foreach ($messages as $message) {
+                $messageString = $messageString.$message."\n";
+            }
+            return $messageString;
+        }
     }
