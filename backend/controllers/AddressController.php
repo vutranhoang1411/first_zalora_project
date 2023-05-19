@@ -60,8 +60,8 @@
             }
         }
 
-
          public function newAddress(){
+             $this->setHeader();
              try{
                  $reqPost=$this->request->getJsonRawBody();
                  //validate input
@@ -69,7 +69,8 @@
                  if (!$this->checkExistField($needField)){
                      return $this->response;
                  }
-                 if (!is_numeric($reqPost["supplierid"])){
+
+                 if (!is_numeric($reqPost->supplierid)){
                      $this->setErrorMsg(400,"invalid supplier id");
                      return $this->response;
                  }
@@ -93,56 +94,4 @@
                  return $this->response;
              }
          }
-        // public function updateAddress(){
-        //     try{
-        //         $reqPost=$this->request->getPost();
-        //         $PHQL="update MyApp\Models\Address set addr=:addr:,type=:type: where id=:id:";
-        //         //validate input
-        //         $needField=["addr","type","id"];
-        //         if (!$this->checkExistField($needField)){
-        //             return $this->response;
-        //         }
-        //         if (!is_numeric($reqPost["id"])){
-        //             $this->setErrorMsg(400,"invalid id");
-        //             return $this->response;
-        //         }
-        //         $param=[];
-        //         foreach ($needField as $field){
-        //             $param[$field]=$reqPost[$field];
-        //         }
-
-        //         $this->modelsManager->executeQuery($PHQL,$param);
-        //         $this->response->setJsonContent([
-        //             "msg"=>"success",
-        //         ]);
-        //         return $this->response;    
-    
-        //     }catch(Exception $e){
-        //         $this->setErrorMsg(400,$e->getMessage());
-        //         return $this->response;
-        //     }
-        // }
-        // public function deleteAddress(){
-        //     try{
-        //         $reqPost=$this->request->getPost();
-        //         $PHQL="delete from MyApp\Models\Address where id=:id:";
-    
-        //         if (!array_key_exists("id",$reqPost)){
-        //             $this->setErrorMsg(400,"missing id");
-        //             return $this->response;
-        //         }
-        //         if (!is_numeric($reqPost["id"])){
-        //             $this->setErrorMsg(400,"invalid id");
-        //             return $this->response;
-        //         }
-        //         $this->modelsManager->executeQuery($PHQL,["id"=>$reqPost["id"]]);
-        //         $this->response->setJsonContent([
-        //             "msg"=>"success",
-        //         ]);
-        //         return $this->response;
-        //     }catch(Exception $e){
-        //         $this->setErrorMsg(400,$e->getMessage());
-        //         return $this->response;
-        //     }
-        // }
     }
