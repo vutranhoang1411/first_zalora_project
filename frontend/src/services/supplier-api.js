@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const SERVER_PATH = `http://localhost:80/api`
+const SERVER_PATH = process.env.REACT_APP_BACKEND_URL
 export const SupplierAPI = {
   createQueryString: (filters) => {
     const params = Object.entries(filters)
@@ -11,9 +11,15 @@ export const SupplierAPI = {
       )
     return params.join('&')
   },
-  fetchSupplier: async function (filters = { status: 'active' }) {
+  fetchSupplier: async function (
+    page = 0,
+    limit = 5,
+    filters = { status: 'active' }
+  ) {
     const filterstring = this.createQueryString(filters)
-    const URL = `${SERVER_PATH}/supplier?${filterstring}`
+    const URL = `${SERVER_PATH}/supplier?page=${
+      page + 1
+    }&limit=${limit}&${filterstring}`
     console.log(URL)
     //const URL = `${process.env.REACT_APP_BACKEND_URL}/supplier`
     return await axios.get(URL)
@@ -23,7 +29,8 @@ export const SupplierAPI = {
     let { HQAddress, WHAddress, OFFAddress, ...submitObject } = data
     const addressValue = [HQAddress, WHAddress, OFFAddress]
     submitObject['address'] = addressValue
-      .filter((value) => value != undefined)
+      // eslint-disable-next-line eqeqeq
+      .filter((value) => value !== undefined)
       .map((value, index) => {
         return {
           addr: value,

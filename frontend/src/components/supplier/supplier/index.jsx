@@ -63,28 +63,40 @@ export default function Supplier() {
     },
   ]
   //State initialize
-  const [data, setData] = React.useState([])
+  const [pageState, setPageState] = React.useState({
+    isLoading: false,
+    data: [],
+    total: 0,
+  })
   const [selectedRow, setSelectedRow] = React.useState(null)
   const [showFilter, setShowFilter] = React.useState(false)
   const [toggle, setToggle] = useState(false)
 
-  const initialStateRef = useRef({
+  const initialPageModelRef = useRef({
+    page: 0,
+    pageSize: 5,
+  })
+
+  const [paginationModel, setPaginationModel] = React.useState(
+    initialPageModelRef.current
+  )
+
+  const initialFilterStateRef = useRef({
     name: '',
     email: '',
     number: '',
     status: 'active',
   })
-  const [filter, setFilter] = useState(initialStateRef.current)
+  const [filter, setFilter] = useState(initialFilterStateRef.current)
   //setState logic function
   const handleToggleFilter = () => {
-    setFilter(initialStateRef.current)
+    setFilter(initialFilterStateRef.current)
     setShowFilter(!showFilter)
   }
   const handleRowEdit = (params) => {
     setSelectedRow(params.row)
   }
   const handleRowDelete = async (id) => {
-    const prevData = [...data] // make a copy of previous state
     try {
       // make API call to delete row
       await SupplierAPI.deleteSupplier(id)
@@ -103,8 +115,14 @@ export default function Supplier() {
         await SupplierAPI.editSupplier(editedrow)
       } else {
         await SupplierAPI.createSupplier(editedrow)
+
+        setPaginationModel((old) => ({
+          ...old,
+          page: Math.ceil(pageState.total / old.pageSize) - 1,
+        }))
+        console.log(paginationModel)
       }
-      setFilter(initialStateRef.current)
+      setFilter(initialFilterStateRef.current)
       setToggle(!toggle)
       setSelectedRow(null)
     } catch (e) {
@@ -114,7 +132,7 @@ export default function Supplier() {
   }
   const setNewFilter = (data) => {
     if (!data) {
-      return setFilter(initialStateRef.current)
+      return setFilter(initialFilterStateRef.current)
     }
     setFilter({ ...filter, ...data })
   }
@@ -125,15 +143,34 @@ export default function Supplier() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await SupplierAPI.fetchSupplier()
-        setData(result.data)
+        setPageState((old) => ({
+          ...old,
+          isLoading: true,
+        }))
+        const result = await SupplierAPI.fetchSupplier(
+          paginationModel.page,
+          paginationModel.pageSize,
+          filter
+        )
+        setPageState((old) => ({
+          ...old,
+          isLoading: false,
+          data: result.data.items,
+          total: result.data.total_items,
+        }))
       } catch (e) {
-        setData([])
+        setPageState((old) => ({
+          ...old,
+          isLoading: false,
+          data: [],
+          total: 0,
+        }))
+        console.log(e)
         alert('Can received the Supplier List')
       }
     }
     fetchData()
-  }, [toggle])
+  }, [paginationModel, toggle])
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4, mr: 2, ml: 2 }}>
@@ -155,15 +192,14 @@ export default function Supplier() {
           />
         )}
         <DataGrid
-          rows={data}
+          rows={pageState.data}
+          rowCount={pageState.total}
+          loading={pageState.isLoading}
+          pageSizeOptions={[5]}
+          paginationModel={paginationModel}
+          paginationMode="server"
+          onPaginationModelChange={setPaginationModel}
           columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: { page: 0, pageSize: 5 },
-            },
-          }}
-          pageSizeOptions={[10, 50]}
-          checkboxSelection
           rowSelection={false}
         />
 

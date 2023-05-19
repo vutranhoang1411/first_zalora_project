@@ -1,10 +1,11 @@
 import axios from 'axios'
 
-const SERVER_PATH = `http://localhost:80/api`
+const SERVER_PATH = process.env.REACT_APP_BACKEND_URL
 
 export const AddressAPI = {
   fetchSupplierAddress: async (id) => {
     const URL = `${SERVER_PATH}/address?supplierid=${id}`
+    console.log(SERVER_PATH)
     return await axios.get(URL)
   },
   deleteAddress: async (id) => {
@@ -17,6 +18,6 @@ export const AddressAPI = {
   },
   addAddress: async (data) => {
     const URL = `${SERVER_PATH}/address`
-    return await axios.put(URL, data)
+    return await axios.post(URL, data)
   },
 }

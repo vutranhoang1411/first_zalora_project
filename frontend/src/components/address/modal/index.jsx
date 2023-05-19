@@ -7,15 +7,18 @@ import {
   Box,
   MenuItem,
 } from '@mui/material'
-
-const statusEnum = [
+const addressTypeEnum = [
   {
-    value: 'active',
-    label: 'active',
+    value: 'office',
+    label: 'office',
   },
   {
-    value: 'inactive',
-    label: 'inactive',
+    value: 'headquater',
+    label: 'headquater',
+  },
+  {
+    value: 'warehouse',
+    label: 'warehouse',
   },
 ]
 function RowModal({ selectedRow, handleSave, setSelectedRow }) {
@@ -37,8 +40,7 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
   const handleClose = (event, reason) => {
     if (reason === 'backdropClick') return
     if (reason === 'escapeKeyDown') {
-      setSelectedRow(null)
-      setError({ error: false, helperText: '' })
+      handleCancel()
       return
     }
     handleSubmit()
@@ -48,16 +50,10 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
     setError({ error: false, helperText: '' })
   }
   const handleSubmit = async () => {
+    if (!data.addr) {
+      return setError({ error: true, helperText: "Data shouldn't be null" })
+    }
     try {
-      if (!data.name || !data.email || !data.number) {
-        setError({ error: true, helperText: "Data shouldn't be null" })
-        return
-      }
-
-      //add active status if not exits (in created case).
-      if (!data.status) {
-        data.status = 'active'
-      }
       handleSave(data)
       setError({ error: false, helperText: '' })
     } catch (e) {
@@ -83,78 +79,30 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
         }}
       >
         <Typography variant="h6">
-          {isNewRow ? `Edit ${selectedRow.name}` : 'Create New Row'}
+          {isNewRow ? `Edit` : 'Create New Address'}
         </Typography>
         <TextField
-          label="Name"
-          name="name"
-          value={data.name ? data.name : ' '}
+          error={error.error}
+          label="Address"
+          name="addr"
+          value={data.addr ? data.addr : ' '}
           onChange={handleInputChange}
           fullWidth
-          error={error.error}
-          helperText={error.helperText}
-        />
-        <TextField
-          label="Email"
-          type="email"
-          name="email"
-          value={data.email ? data.email : ' '}
-          onChange={handleInputChange}
-          fullWidth
-          error={error.error}
-          helperText={error.helperText}
-        />
-        <TextField
-          label="Contact Number"
-          type="contact"
-          name="number"
-          value={data.number ? data.number : ' '}
-          onChange={handleInputChange}
-          fullWidth
-          error={error.error}
           helperText={error.helperText}
         />
         <TextField
           select
-          label="Status"
-          value={data.status ? data.status : 'active'}
-          name="status"
+          label="Type"
+          value={data.type ? data.type : 'office'}
+          name="type"
           onChange={handleInputChange}
         >
-          {statusEnum.map((option) => (
+          {addressTypeEnum.map((option) => (
             <MenuItem key={option.value} value={option.value}>
               {option.label}
             </MenuItem>
           ))}
         </TextField>
-
-        {isNewRow ? (
-          ''
-        ) : (
-          <div>
-            <TextField
-              label=" HQ Address"
-              name="HQAddress"
-              value={data.HQAddress ? data.HQAddress : ''}
-              onChange={handleInputChange}
-              fullWidth
-            />
-            <TextField
-              label="WareHouse Address"
-              name="WHAddress"
-              value={data.WHAddress ? data.WHAddress : ''}
-              onChange={handleInputChange}
-              fullWidth
-            />
-            <TextField
-              label="Office Address"
-              name="OFFAddress"
-              value={data.OFFAddress ? data.OFFAddress : ''}
-              onChange={handleInputChange}
-              fullWidth
-            />
-          </div>
-        )}
         <Box sx={{ mt: 2 }}>
           <Button
             variant="contained"
