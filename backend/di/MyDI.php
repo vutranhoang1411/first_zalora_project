@@ -17,6 +17,9 @@
                     }
                 );
                 $DIcontainer->set(
+                  'product_repo', new \MyApp\Repository\ProductRepo()
+                );
+                $DIcontainer->set(
                     'supplier_repo',new \MyApp\Repository\SupplierRepo()
                 );
                 $DIcontainer->set(

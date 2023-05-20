@@ -37,9 +37,9 @@
             //$this->response->setHeader("Access-Control-Allow-Headers", "Content-Type");
             //$this->response->setHeader("Access-Control-Allow-Methods", "POST,HEAD,PATCH,OPTIONS,GET,PUT,DELETE");
         }
-        protected function createErrorMessage($modelInstance) {
+        protected function createErrorMessage($messages) {
             $messageString = "";
-            $messages = $modelInstance->getMessages();
+            //$messages = $modelInstance->getMessages();
             foreach ($messages as $message) {
                 $messageString = $messageString.$message."\n";
             }

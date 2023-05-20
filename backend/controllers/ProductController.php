@@ -5,8 +5,6 @@ use Phalcon\Http\Response;
 use Phalcon\Mvc\Controller;
 use MyApp\Models as Models;
 use Exception;
-use Phalcon\Paginator\Adapter\Model as PaginateModel;
-
 
 /**
  * @property Response $response
@@ -19,81 +17,14 @@ class ProductController extends BaseController
         try {
             $reqQuery = $this->request->getQuery();
 
-            $conditions = [];
-            $bindParams = [];
-            $limit = 5;
-            $page = 1;
-
-            if (isset($reqQuery['color'])) {
-                $conditions[] = 'color = :color:';
-                $bindParams['color'] = $reqQuery['color'];
+            $query = $this->getQuery($reqQuery);
+            if (!$query['result']) {
+                $this->setErrorMsg('409', "Query params failed");
+                return $this->response;
             }
-
-            if (isset($reqQuery['size'])) {
-                $conditions[] = 'size = :size:';
-                $bindParams['size'] = $reqQuery['size'];
-            }
-
-            if (isset($reqQuery['brand'])) {
-                $conditions[] = 'brand LIKE :brand:';
-                $bindParams['brand'] = '%'.$reqQuery['brand'].'%';
-            }
-
-            if (isset($reqQuery['name'])) {
-                $conditions[] = 'name LIKE :name:';
-                $bindParams['name'] = '%'.$reqQuery['name'].'%';
-            }
-
-            if (isset($reqQuery['limit'])) {
-                $limit = $reqQuery['limit'];
-            }
-
-            if (isset($reqQuery['page'])) {
-                $page = $reqQuery['page'];
-            }
-
-            $paginator = new PaginateModel(
-                [
-                    "model" => Models\Product::class,
-                    "parameters" => [
-                        'conditions' => implode(' AND ', $conditions),
-                        'bind' => $bindParams,
-                        "order" => "id"
-                    ],
-                    "limit" => $limit,
-                    "page"  => $page,
-                ]
-            );
-
-            $results = $paginator->paginate();
-
-            $totalStock = Models\ProductSupply::sum([
-                    'column' => 'stock',
-                    'group'  => 'productid',
-                ]
-            );
-
-            $items = $results->getItems()->toArray();
-            $totalStockArray = $totalStock->toArray();
-
-            foreach ($items as &$item) {
-                $found = false;
-                for ($j = 0; $j < count($totalStockArray); $j++) {
-                    if ($item['id'] == $totalStockArray[$j]['productid']) {
-                        $item['totalStock'] = $totalStockArray[$j]['sumatory'];
-                        $found = true;
-                        break;
-                    }
-                }
-                if (!$found) {
-                    $item['totalStock'] = 0;
-                }
-            }
+            $resultsArray = $this->product_repo->getProductWithStock($query);
 
             $this->response->setStatusCode(200);
-            $resultsArray = [];
-            $resultsArray['items']=$items;
-            $resultsArray['total_items']= $results->getTotalItems();
             return $this->response->setJsonContent(
                 $resultsArray
             );
@@ -102,6 +33,50 @@ class ProductController extends BaseController
             return $this->response;
         }
     }
+    private function getQuery($reqQuery) {
+        $conditions = [];
+        $bindParams = [];
+        $limit = 5;
+        $page = 1;
+
+        if (isset($reqQuery['color'])) {
+            $conditions[] = 'color = :color:';
+            $bindParams['color'] = $reqQuery['color'];
+        }
+
+        if (isset($reqQuery['size'])) {
+            $conditions[] = 'size = :size:';
+            $bindParams['size'] = $reqQuery['size'];
+        }
+
+        if (isset($reqQuery['brand'])) {
+            $conditions[] = 'brand LIKE :brand:';
+            $bindParams['brand'] = '%'.$reqQuery['brand'].'%';
+        }
+
+        if (isset($reqQuery['name'])) {
+            $conditions[] = 'name LIKE :name:';
+            $bindParams['name'] = '%'.$reqQuery['name'].'%';
+        }
+
+        if (isset($reqQuery['limit'])) {
+            $limit = $reqQuery['limit'];
+        }
+
+        if (isset($reqQuery['page'])) {
+            $page = $reqQuery['page'];
+        }
+
+        if (!is_numeric($page) or !is_numeric($limit)) {
+            return array('result'=>false);
+        }
+
+        $conditions[] = 'status = :status:';
+        $bindParams['status'] = 'active';
+
+        return array('result'=> true,'conditions'=>$conditions,'bindParams'=>$bindParams,'limit'=>$limit,'page'=>$page);
+    }
+
     public function addProduct()
     {
         $this->setHeader();
@@ -112,27 +87,19 @@ class ProductController extends BaseController
                 return $this->response;
             }
 
-            $product = new Models\Product();
-            $product->assign(get_object_vars($data),[
-                    'name',
-                    'brand',
-                    'size',
-                    'color',
-                ]
-            );
-            $product->status = 'active';
-            // Store and check for errors
-            $result = $product->save();
+            $results = $this->product_repo->addProduct($data);
+            $result = $results['result'];
 
             if ($result === true) {
+                $product = $results['product'];
                 $this->response->setJsonContent(
                     [
-                        'status' => 'OK',
-                        'data'   => $product,
+                        $product
                     ]
                 );
             } else {
-                $messageError = $this->createErrorMessage($product);
+                $message = $results['message'];
+                $messageError = $this->createErrorMessage($message);
                 $this->setErrorMsg('409', $messageError);
             }
             return $this->response;
@@ -143,8 +110,8 @@ class ProductController extends BaseController
     }
     private function checkRequestData($data, $edit=false) {
         $attr = ['name', 'brand', 'size','color'];
-        $color = ['Black', 'White', 'Blue', 'Red'];
-        $size = ['XXL', 'XL', 'L'];
+        $color = ['Green','Yellow','Black','White','Red','Ombre','Silver','Gray','Purple','Lime','Teal','Olive','Blue'];
+        $size = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
         foreach ($attr as $item) {
             if (!property_exists($data, $item)) {
                 return false;
@@ -172,13 +139,8 @@ class ProductController extends BaseController
     public function deleteProduct($id) {
         $this->setHeader();
         try {
-            $product = Models\Product::findFirst($id);
-            if (!$product) {
-                $this->setErrorMsg('409', "Can't find the deleted item");
-                return $this->response;
-            }
-            $result = $product->delete();
-
+            $results = $this->product_repo->deleteProduct($id);
+            $result = $results['result'];
             if ($result === true) {
                 $this->response->setJsonContent(
                     [
@@ -186,7 +148,8 @@ class ProductController extends BaseController
                     ]
                 );
             } else {
-                $messageError = $this->createErrorMessage($product);
+                $message = $results['message'];
+                $messageError = $this->createErrorMessage($message);
                 $this->setErrorMsg('409', $messageError);
             }
             return $this->response;
@@ -205,30 +168,18 @@ class ProductController extends BaseController
                 return $this->response;
             }
 
-            $product = Models\Product::findFirst($data->id);
-            if (!$product) {
-                $this->setErrorMsg('409', "Can't find the edited item");
-                return $this->response;
-            }
-            $product->assign(get_object_vars($data),[
-                    'name',
-                    'brand',
-                    'size',
-                    'color',
-                    'status',
-                ]
-            );
-
-            $result = $product->save();
-
+            $results = $this->product_repo->editProduct($data);
+            $result = $results['result'];
             if ($result === true) {
+                $product = $results['product'];
                 $this->response->setJsonContent(
                     [
                         $product
                     ]
                 );
             } else {
-                $messageError = $this->createErrorMessage($product);
+                $message = $results['message'];
+                $messageError = $this->createErrorMessage($message);
                 $this->setErrorMsg('409', $messageError);
             }
             return $this->response;
