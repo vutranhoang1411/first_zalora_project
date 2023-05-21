@@ -51,9 +51,10 @@ class Product extends Model
     }
 
     protected function generateNewSku($product_name, $brand_name, $size, $color) {
-        $string = sprintf("%d%d%s%s", $product_name, $brand_name, $size, $color);
-        $hash = md5($string);
-        return substr($hash, 0, 20);
+        $concatenatedValues = $product_name . $brand_name . $size . $color;
+        $checksum = crc32($concatenatedValues);
+        $positiveChecksum = sprintf("%u", $checksum);
+        return substr($positiveChecksum, 0, 20);
     }
     public function validation()
     {
