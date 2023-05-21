@@ -35,7 +35,12 @@ export default function Supplier() {
         )
       },
     },
-    { field: 'status', headerName: 'Status', width: 100, editable: false },
+    {
+      field: 'total_stock',
+      headerName: 'Total Stock',
+      width: 100,
+      editable: false,
+    },
     {
       editable: true,
       field: 'action',
@@ -84,8 +89,6 @@ export default function Supplier() {
   const initialFilterStateRef = useRef({
     name: '',
     email: '',
-    number: '',
-    status: 'active',
   })
   const [filter, setFilter] = useState(initialFilterStateRef.current)
   //setState logic function
