@@ -47,10 +47,10 @@ export default function CustomTable() {
               paginationModel: { page: 0, pageSize: 10 },
             },
           }}
-          pageSizeOptions={[10, 50]}
+          pageSizeOptions={[5, 10, 50]}
           checkboxSelection
           onCellClick={(event) => {
-            console.log(event) // field, formattedValue, isEditable
+            // console.log(event) // field, formattedValue, isEditable
           }}
         />
       </Paper>

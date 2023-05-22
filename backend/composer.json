@@ -1,0 +1,26 @@
+{
+    "name": "hoangdeptrai/html",
+    "autoload": {
+        "psr-4": {
+            "Test\\":"test/",
+            "MyApp\\Models\\":"models/",
+            "MyApp\\Controllers\\":"controllers/",
+            "MyApp\\Repository\\":"repository/",
+            "MyApp\\Util\\":"util/"
+        }
+    },
+    "authors": [
+        {
+            "name": "vu tran hoang",
+            "email": "hoang.vu141102@hcmut.edu.vn"
+        }
+    ],
+    "require-dev": {
+        "phalcon/ide-stubs": "^5.2",
+        "phpunit/phpunit": "^10.0",
+        "phalcon/migrations": "^3.0"
+    },
+    "require": {
+        "josegonzalez/dotenv": "dev-master"
+    }
+}

@@ -1,8 +1,12 @@
 import React from 'react'
-import CustomTable from 'components/table'
+import ProductTable from 'components/product/table'
 
 export const DashboardPage = () => {
-  return <CustomTable />
+  return (
+    <>
+      <ProductTable />
+    </>
+  )
 }
 
 // export default Dashboard
