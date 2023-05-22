@@ -2,6 +2,11 @@
     "name": "hoangdeptrai/html",
     "autoload": {
         "psr-4": {
+            "Test\\":"test/",
+            "MyApp\\Models\\":"models/",
+            "MyApp\\Controllers\\":"controllers/",
+            "MyApp\\Repository\\":"repository/",
+            "MyApp\\Util\\":"util/"
         }
     },
     "authors": [
@@ -11,7 +16,9 @@
         }
     ],
     "require-dev": {
-        "phalcon/ide-stubs": "^5.2"
+        "phalcon/ide-stubs": "^5.2",
+        "phpunit/phpunit": "^10.0",
+        "phalcon/migrations": "^3.0"
     },
     "require": {
         "josegonzalez/dotenv": "dev-master"

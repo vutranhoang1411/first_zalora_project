@@ -1,0 +1,24 @@
+version: '2.7'
+services:
+  zalora-mysql:
+    image: mysql:8.0-debian
+    environment:
+      MYSQL_DATABASE: 'test'
+      MYSQL_ROOT_PASSWORD: 'Hoang2002'
+    expose:
+      - "3306"
+  zalora-nginx:
+    image: zalora_nginx:latest
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    depends_on:
+      - "php-fpm"
+      - "zalora-mysql"
+
+  php-fpm:
+    build:
+      context: .
+      dockerfile: ./docker/phalcon/Dockerfile
+    depends_on:
+      - "zalora-mysql"
