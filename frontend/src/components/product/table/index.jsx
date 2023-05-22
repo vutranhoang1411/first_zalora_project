@@ -8,35 +8,41 @@ import { Link as RouterLink } from 'react-router-dom'
 import {
   useDeleteProductMutation,
   useGetAllProductsQuery,
+  useLazyGetPaginationProductsQuery,
 } from 'services/createApi'
 import ModalCreateProductForm from 'components/modal'
 import Loading from 'components/loading'
 
-// Generate Order Data
-// GridColDef[]
-
 export default function ProductTable() {
-  const {
-    isLoading: loading,
-    data: productList,
-    error,
-    refetch,
-  } = useGetAllProductsQuery({
-    skip: true,
-    pollingInterval: 3000,
-    refetchOnMountOrArgChange: true,
-  })
+  const [
+    getPaginationQueryTrigger,
+    {
+      isFetching: productLoading,
+      data: productList,
+      error: productError,
+      isLoading: loadFirstTime,
+    },
+  ] = useLazyGetPaginationProductsQuery()
+
   const tableRef = useRef()
   const [rowSelectionIndex, setRowSelectionIndex] = useState([])
   const [openCreateModal, setOpenCreateModal] = useState(false)
   const [openEditModal, setOpenEditModal] = useState(false)
   const [selectedRow, setSelectedRow] = useState(null)
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 5,
+  })
   const handleRowSelection = (newSelectedRow) => {
     setRowSelectionIndex(newSelectedRow)
   }
 
   useEffect(() => {
-    refetch()
+    getPaginationQueryTrigger(paginationModel).then((res) => {})
+  }, [paginationModel])
+
+  useEffect(() => {
+    getPaginationQueryTrigger(paginationModel)
   }, [])
 
   const [
@@ -47,7 +53,7 @@ export default function ProductTable() {
     try {
       const payload = await deleteTrigger(rowSelectionIndex[0]).unwrap()
       console.log('>> fulfilled', payload)
-      refetch()
+      getPaginationQueryTrigger(paginationModel)
     } catch (err) {
       console.log('>> rejected', err)
     }
@@ -113,31 +119,29 @@ export default function ProductTable() {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-        {!error && (
+        {!productError && (
           <div ref={tableRef} style={{ margin: 20, padding: 10 }}>
             <ProductTableHead
+              title={'Product Records'}
               openCreateModal={() => {
                 setOpenCreateModal(true)
               }}
               rowSelected={rowSelectionIndex.length}
               deleteRowHandler={deleteRowHandler}
             />
-            {!loading ? (
+            {productList && (
               <DataGrid
-                rows={productList}
+                rows={productList.items}
+                rowCount={productList.total_items}
                 columns={columns}
-                initialState={{
-                  pagination: {
-                    paginationModel: { page: 0, pageSize: 10 },
-                  },
-                }}
-                pageSizeOptions={[10, 50]}
-                loading={loading}
+                loading={productLoading || loadFirstTime}
+                pageSizeOptions={[5, 10, 25]}
+                paginationMode="server"
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
                 onRowSelectionModelChange={handleRowSelection}
                 rowSelectionModel={rowSelectionIndex}
               />
-            ) : (
-              <Loading />
             )}
           </div>
         )}
@@ -145,16 +149,19 @@ export default function ProductTable() {
       {selectedRow && (
         <ModalEditProductTable
           productInfo={selectedRow}
-          // setProductInfo={(info) => setSelectedRow(info)}
           open={openEditModal}
           setClose={() => setOpenEditModal(false)}
-          refetchAllProducts={refetch}
+          refetchPage={() => {
+            getPaginationQueryTrigger(paginationModel)
+          }}
         />
       )}
       <ModalCreateProductForm
         open={openCreateModal}
         setClose={() => setOpenCreateModal(false)}
-        refetchAllProducts={refetch}
+        refetchPage={() => {
+          getPaginationQueryTrigger(paginationModel)
+        }}
       />
     </Container>
   )

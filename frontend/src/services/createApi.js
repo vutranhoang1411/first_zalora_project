@@ -15,6 +15,21 @@ export const ProductApi = createApi({
       },
     }),
 
+    getProductById: builder.query({
+      query: (id) => ({
+        url: `/${id}`,
+        method: 'GET',
+      }),
+    }),
+
+    getPaginationProducts: builder.query({
+      providesTags: ['Product'],
+      query: (req) => ({
+        url: `?page=${req.page + 1}`,
+        method: 'GET',
+      }),
+    }),
+
     editProduct: builder.mutation({
       providesTags: ['Product'],
       query: (productInfo) => ({
@@ -90,7 +105,10 @@ export const SupplierApi = createApi({
   endpoints: (builder) => ({
     getAllSuppliers: builder.query({
       providesTags: ['Supplier'],
-      query: () => ({}),
+      query: () => ({
+        url: `/name`,
+        method: 'GET',
+      }),
     }),
   }),
 })
@@ -98,9 +116,11 @@ export const SupplierApi = createApi({
 // Export ra ngoài thành các hooks để sử dụng theo cú pháp use + endpoints (login) + endpoints type (mutation)
 export const {
   useGetAllProductsQuery,
+  useLazyGetPaginationProductsQuery,
   useEditProductMutation,
   useCreateNewProductMutation,
   useDeleteProductMutation,
+  useGetProductByIdQuery,
 } = ProductApi
 
 export const {

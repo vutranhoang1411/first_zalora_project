@@ -42,7 +42,7 @@ const ModalFormNewProduct = (props) => {
   }
 
   const onSubmitChange = () => {
-    console.log('>> new product ', newProduct)
+    // console.log('>> new product ', newProduct)
     const submit = {
       ...productInfo,
       ...newProduct,

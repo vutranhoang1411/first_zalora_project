@@ -5,7 +5,7 @@ const ErrorNotification = forwardRef(function ErrorNotification(props) {
   const { error, setError } = props
   useEffect(() => {
     setTimeout(() => {
-      if (error) {
+      if (error != null) {
         setError(null)
       }
     }, 2000)
