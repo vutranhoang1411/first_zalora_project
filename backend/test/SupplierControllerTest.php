@@ -8,6 +8,7 @@
     use PHPUnit\Framework\TestCase;
     use Phalcon\DI;
     use Phalcon\Http\Request;
+    use Phalcon\Http\Response;
     use Phalcon\Mvc\Model\Query\Status;
     use MyApp\Util\Util;
 
@@ -93,7 +94,8 @@
                 $requestMock->expects($this->any())->method("getJsonRawBody")->willReturn(json_decode($tc["request"]));
                 $DI->remove('request');
                 $DI->set('request',$requestMock);
-
+                $DI->remove('response');
+                $DI->set('response',new Response());
                 //new controller since the old one will use the old DI
                 $controller=new SupplierController(); 
 
