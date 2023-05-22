@@ -39,17 +39,40 @@ const ModalCreateProductForm = (props) => {
     const submitProduct = {
       ...productNewInfo,
     }
+    console.log(submitProduct)
+    setCreateError(null)
 
-    createNewProduct(submitProduct)
-      .unwrap()
-      .then((res) => {
-        // define assign
-        refetchPage()
-        setClose()
-      })
-      .catch((err) => {
-        setCreateError(err?.data?.error)
-      })
+    const fields = ['name', 'brand', 'color', 'size']
+    for (let field of fields) {
+      if (!submitProduct.hasOwnProperty(field)) {
+        setCreateError('Missing field')
+        setProductNewInfo({
+          size: 'XL',
+          color: ProductColor.GREEN,
+        })
+        return
+      }
+    }
+
+    if (error == null) {
+      console.log('no error')
+      createNewProduct(submitProduct)
+        .unwrap()
+        .then((res) => {
+          // define assign
+          refetchPage()
+          setClose()
+          setProductNewInfo({
+            size: 'XL',
+            color: ProductColor.GREEN,
+          })
+          setCreateError(null)
+        })
+        .catch((err) => {
+          setCreateError(err?.data?.error)
+          setProductNewInfo({})
+        })
+    }
   }
 
   const handleFieldChangeClick = (value, field) => {

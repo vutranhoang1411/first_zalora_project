@@ -1,5 +1,5 @@
 import { DataGrid } from '@mui/x-data-grid'
-import { Box, Button, Container, Paper } from '@mui/material'
+import { Box, Button, Container, Paper, Typography } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { Link as RouterLink, useParams } from 'react-router-dom'
 import {
@@ -81,7 +81,10 @@ export default function SupplierDetails() {
               deleteRowHandler={deleteRowHandler}
             />
             {supplierProductList?.length === 0 && !loading ? (
-              <h1> No Supplier</h1>
+              <Typography variant="h4" sx={{ m: 2 }}>
+                {' '}
+                No Supplier
+              </Typography>
             ) : !loading ? (
               <DataGrid
                 sx={{ m: 2 }}

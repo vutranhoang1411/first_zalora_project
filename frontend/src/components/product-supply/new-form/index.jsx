@@ -68,10 +68,12 @@ const ModalNewSupplierForProductModal = (props) => {
         // store.dispatch(ProductApi.endpoints.getAllProducts.)
         refetchAllSuppliers()
         handleClose()
+        setNewSupplier({})
         return res
       })
       .catch((err) => {
         setErrorReq(err)
+        setNewSupplier({})
       })
   }
 
