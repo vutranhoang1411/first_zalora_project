@@ -4,7 +4,7 @@ import FilterListIcon from '@mui/icons-material/FilterList'
 import { AddCircleOutline } from '@mui/icons-material'
 
 export default function ProductTableHead(props) {
-  const { rowSelected, deleteRowHandler, openCreateModal } = props
+  const { rowSelected, deleteRowHandler, openCreateModal, title } = props
 
   return (
     <Toolbar
@@ -37,7 +37,7 @@ export default function ProductTableHead(props) {
           id="tableTitle"
           component="div"
         >
-          Product Records
+          {title}
         </Typography>
       )}
 

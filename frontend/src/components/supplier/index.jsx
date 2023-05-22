@@ -124,7 +124,7 @@ export default function Supplier() {
               paginationModel: { page: 0, pageSize: 5 },
             },
           }}
-          pageSizeOptions={[10, 50]}
+          pageSizeOptions={[5, 10, 50]}
           checkboxSelection
           onCellClick={(params) => {
             if (params.field === 'action') {

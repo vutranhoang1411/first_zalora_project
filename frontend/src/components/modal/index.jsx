@@ -21,12 +21,12 @@ const sizeList = ParseObjectToValueLabel(ProductSize)
 const colorList = ParseObjectToValueLabel(ProductColor)
 
 const ModalCreateProductForm = (props) => {
-  const { open = false, setClose, refetchAllProducts } = props
+  const { open = false, setClose, refetchPage } = props
   const [productNewInfo, setProductNewInfo] = useState({
     size: 'XL',
     color: ProductColor.GREEN,
-    name: 'A',
-    brand: 'B',
+    // name: 'A',
+    // brand: 'B',
   })
   const [createNewProduct, { isLoading, data, error, isError }] =
     useCreateNewProductMutation()
@@ -39,31 +39,26 @@ const ModalCreateProductForm = (props) => {
     const submitProduct = {
       ...productNewInfo,
     }
-    console.log(submitProduct)
 
     createNewProduct(submitProduct)
       .unwrap()
       .then((res) => {
-        console.log('promise res', res)
         // define assign
-        refetchAllProducts()
+        refetchPage()
         setClose()
       })
       .catch((err) => {
-        console.log('promise err', err)
         setCreateError(err?.data?.error)
       })
   }
 
   const handleFieldChangeClick = (value, field) => {
     productNewInfo[field] = value
-    console.log(productNewInfo)
     setProductNewInfo(productNewInfo)
   }
 
   const onInputNewValueField = (value, field) => {
     productNewInfo[field] = value
-    console.log(productNewInfo)
     setProductNewInfo(productNewInfo)
   }
 

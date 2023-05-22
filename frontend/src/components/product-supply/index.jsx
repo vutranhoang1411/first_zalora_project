@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link as RouterLink, useParams } from 'react-router-dom'
 import {
   useDeleteSupplierOfProductMutation,
+  useGetProductByIdQuery,
   useGetSupplierByProductIdQuery,
 } from 'services/createApi'
 import Loading from 'components/loading'
@@ -33,6 +34,11 @@ export default function SupplierDetails() {
     deleteTrigger,
     { loading: deleteLoading, data: deleteData, error: deleteError },
   ] = useDeleteSupplierOfProductMutation()
+  const {
+    data: productData,
+    loading: productLoading,
+    error: productError,
+  } = useGetProductByIdQuery(productId)
 
   const deleteRowHandler = async () => {
     try {
@@ -65,16 +71,20 @@ export default function SupplierDetails() {
         {!error && (
           <div ref={tableRef} style={{ margin: 20, padding: 10 }}>
             <ProductTableHead
+              title={`Supplier Records for Product [${
+                productData ? productData.name : ''
+              }]`}
               openCreateModal={() => {
                 setOpenCreateModal(true)
               }}
               rowSelected={rowSelectionIndex.length}
               deleteRowHandler={deleteRowHandler}
             />
-            {supplierProductList?.length === 0 ? (
+            {supplierProductList?.length === 0 && !loading ? (
               <h1> No Supplier</h1>
             ) : !loading ? (
               <DataGrid
+                sx={{ m: 2 }}
                 rows={supplierProductList}
                 columns={columns}
                 initialState={{
@@ -82,7 +92,7 @@ export default function SupplierDetails() {
                     paginationModel: { page: 0, pageSize: 10 },
                   },
                 }}
-                pageSizeOptions={[10, 50]}
+                pageSizeOptions={[5, 10, 50]}
                 loading={loading}
                 onRowSelectionModelChange={handleRowSelection}
                 rowSelectionModel={rowSelectionIndex}
@@ -96,7 +106,7 @@ export default function SupplierDetails() {
 
       <ModalNewSupplierForProductModal
         open={openCreateModal}
-        productId={productId}
+        productInfo={productData}
         setClose={() => setOpenCreateModal(false)}
         refetchAllSuppliers={refetch}
       />
