@@ -76,9 +76,10 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
           bgcolor: 'background.paper',
           boxShadow: 24,
           p: 4,
+          paddingRight: 10,
         }}
       >
-        <Typography variant="h6">
+        <Typography variant="h6" sx={{ m: 2 }}>
           {isNewRow ? `Edit` : 'Create New Address'}
         </Typography>
         <TextField
@@ -89,6 +90,7 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
           onChange={handleInputChange}
           fullWidth
           helperText={error.helperText}
+          sx={{ m: 2 }}
         />
         <TextField
           select
@@ -96,6 +98,7 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
           value={data.type ? data.type : 'office'}
           name="type"
           onChange={handleInputChange}
+          sx={{ m: 2 }}
         >
           {addressTypeEnum.map((option) => (
             <MenuItem key={option.value} value={option.value}>
@@ -103,7 +106,7 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
             </MenuItem>
           ))}
         </TextField>
-        <Box sx={{ mt: 2 }}>
+        <Box sx={{ m: 2 }}>
           <Button
             variant="contained"
             color="info"

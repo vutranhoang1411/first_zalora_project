@@ -76,13 +76,14 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: 400,
+          width: 700,
           bgcolor: 'background.paper',
           boxShadow: 24,
           p: 4,
+          paddingRight: 10,
         }}
       >
-        <Typography variant="h6">
+        <Typography variant="h6" sx={{ m: 2 }}>
           {isNewRow ? `Edit ${selectedRow.name}` : 'Create New Row'}
         </Typography>
         <TextField
@@ -93,6 +94,7 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
           fullWidth
           error={error.error}
           helperText={error.helperText}
+          sx={{ m: 2 }}
         />
         <TextField
           label="Email"
@@ -103,6 +105,7 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
           fullWidth
           error={error.error}
           helperText={error.helperText}
+          sx={{ m: 2 }}
         />
         <TextField
           label="Contact Number"
@@ -110,9 +113,10 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
           name="number"
           value={data.number ? data.number : ' '}
           onChange={handleInputChange}
-          fullWidth
+          // fullWidth
           error={error.error}
           helperText={error.helperText}
+          sx={{ m: 2 }}
         />
         <TextField
           select
@@ -120,6 +124,7 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
           value={data.status ? data.status : 'active'}
           name="status"
           onChange={handleInputChange}
+          sx={{ m: 2 }}
         >
           {statusEnum.map((option) => (
             <MenuItem key={option.value} value={option.value}>
@@ -138,6 +143,7 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
               value={data.HQAddress ? data.HQAddress : ''}
               onChange={handleInputChange}
               fullWidth
+              sx={{ m: 2 }}
             />
             <TextField
               label="WareHouse Address"
@@ -145,6 +151,7 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
               value={data.WHAddress ? data.WHAddress : ''}
               onChange={handleInputChange}
               fullWidth
+              sx={{ m: 2 }}
             />
             <TextField
               label="Office Address"
@@ -152,10 +159,11 @@ function RowModal({ selectedRow, handleSave, setSelectedRow }) {
               value={data.OFFAddress ? data.OFFAddress : ''}
               onChange={handleInputChange}
               fullWidth
+              sx={{ m: 2 }}
             />
           </div>
         )}
-        <Box sx={{ mt: 2 }}>
+        <Box sx={{ m: 2 }}>
           <Button
             variant="contained"
             color="info"

@@ -21,11 +21,12 @@ export const Address = () => {
       headerName: 'Action',
       width: 200,
       renderCell: (params) => (
-        <Box sx={{ margin: 2 }}>
+        <Box>
           <Button
             variant="contained"
             color="primary"
             onClick={() => handleRowEdit(params)}
+            sx={{ mr: 2 }}
           >
             Edit
           </Button>
